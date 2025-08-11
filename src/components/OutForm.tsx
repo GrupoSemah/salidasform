@@ -138,22 +138,24 @@ export default function OutForm() {
             <div className="mb-8 leading-relaxed text-sm sm:text-base">
               {tipoPersona === 'natural' ? (
                 <div className="space-y-4">
-                  <div className="space-y-3">
+                  {/* Layout mobile vs desktop */}
+                  <div className="block sm:hidden space-y-3">
+                    {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
                       <span>Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] sm:min-w-[180px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>con cédula de identidad personal número</span>
-                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] sm:min-w-[140px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, quien mantiene alquilado el local</span>
-                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] sm:min-w-[80px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] sm:min-w-[140px] focus:border-orange-600 focus:outline-none bg-transparent">
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
@@ -166,38 +168,65 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>de</span>
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] sm:min-w-[180px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
+                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
                       <span>. El motivo por el cual desocupo el local es:</span>
                     </div>
                   </div>
+
+                  {/* Desktop: Párrafo fluido */}
+                  <div className="hidden sm:block">
+                    <p className="leading-relaxed">
+                      Por este medio, yo, 
+                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="nombre completo" />
+                      con cédula de identidad personal número 
+                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número de cédula" />
+                      , quien mantiene alquilado el local 
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
+                      en <strong>Almacenajes Minidepósitos</strong>, sucursal 
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
+                        <option value="">Seleccione...</option>
+                        {sucursalOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      , comunico que estaremos desocupando dicho local aproximadamente el día 
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" />
+                      de 
+                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="motivo" />
+                      . El motivo por el cual desocupo el local es:
+                    </p>
+                  </div>
+                  
                   <textarea className="border border-orange-400 w-full mt-4 p-3 h-20 rounded-md focus:border-orange-600 focus:outline-none resize-none" placeholder="Describa el motivo detalladamente..." />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="space-y-3">
+                  {/* Layout mobile vs desktop para Persona Jurídica */}
+                  <div className="block sm:hidden space-y-3">
+                    {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
                       <span>Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] sm:min-w-[180px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>con cédula de identidad personal número</span>
-                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] sm:min-w-[140px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, actuando en mi condición de Representante Legal de la Empresa</span>
-                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] sm:min-w-[220px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre de la empresa" />
+                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre de la empresa" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, con RUC</span>
-                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] sm:min-w-[140px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de RUC" />
+                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de RUC" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, quien mantiene alquilado el local</span>
-                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] sm:min-w-[80px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] sm:min-w-[140px] focus:border-orange-600 focus:outline-none bg-transparent">
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
@@ -210,10 +239,39 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span>de</span>
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] sm:min-w-[180px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
+                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
                       <span>. El motivo por el cual desocupo el local es:</span>
                     </div>
                   </div>
+
+                  {/* Desktop: Párrafo fluido para Persona Jurídica */}
+                  <div className="hidden sm:block">
+                    <p className="leading-relaxed">
+                      Por este medio, yo, 
+                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="nombre completo" />
+                      con cédula de identidad personal número 
+                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número de cédula" />
+                      , actuando en mi condición de Representante Legal de la Empresa 
+                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-2 px-1 w-56 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="nombre de la empresa" />
+                      , con RUC 
+                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número de RUC" />
+                      , quien mantiene alquilado el local 
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
+                      en <strong>Almacenajes Minidepósitos</strong>, sucursal 
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
+                        <option value="">Seleccione...</option>
+                        {sucursalOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                      , comunico que estaremos desocupando dicho local aproximadamente el día 
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" />
+                      de 
+                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="motivo" />
+                      . El motivo por el cual desocupo el local es:
+                    </p>
+                  </div>
+                  
                   <textarea className="border border-orange-400 w-full mt-4 p-3 h-20 rounded-md focus:border-orange-600 focus:outline-none resize-none" placeholder="Describa el motivo detalladamente..." />
                 </div>
               )}

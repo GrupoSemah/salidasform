@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
@@ -14,6 +14,7 @@ export default function OutForm() {
   const [tipoPersona, setTipoPersona] = useState<'natural' | 'juridica'>('natural');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [currentDate, setCurrentDate] = useState({ day: '', month: '', year: '' });
 
   const {
     register,
@@ -27,6 +28,21 @@ export default function OutForm() {
       tipoCuenta: 'corriente',
     }
   });
+
+  // Establecer fecha actual automáticamente
+  useEffect(() => {
+    const now = new Date();
+    const day = now.getDate().toString();
+    const month = now.toLocaleString('es-ES', { month: 'long' });
+    const year = now.getFullYear().toString().slice(-2);
+
+    setCurrentDate({ day, month, year });
+    
+    // Establecer valores en el formulario
+    setValue('fechaDocumento', day);
+    setValue('mesDocumento', month);
+    setValue('anoDocumento', year);
+  }, [setValue]);
 
   const onSubmit = async (data: OutFormData) => {
     setIsSubmitting(true);
@@ -99,15 +115,25 @@ export default function OutForm() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white p-4 sm:p-6 lg:p-8 border border-gray-200 rounded-lg shadow-sm">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Fecha del documento */}
+            {/* Fecha del documento - Auto-generada */}
             <div className="text-right mb-6 text-sm sm:text-base">
               <div className="flex flex-wrap justify-end items-center gap-1">
                 <span>Panamá,</span>
-                <input {...register('fechaDocumento')} className="border-b border-orange-400 w-12 sm:w-16 text-center focus:border-orange-600 focus:outline-none" placeholder="día" />
+                <span className="border-b border-orange-400 w-12 sm:w-16 text-center font-medium text-orange-600">
+                  {currentDate.day}
+                </span>
                 <span>de</span>
-                <input {...register('mesDocumento')} className="border-b border-orange-400 w-20 sm:w-24 text-center focus:border-orange-600 focus:outline-none" placeholder="mes" />
+                <span className="border-b border-orange-400 w-20 sm:w-24 text-center font-medium text-orange-600">
+                  {currentDate.month}
+                </span>
                 <span>de 20</span>
-                <input {...register('anoDocumento')} className="border-b border-orange-400 w-10 sm:w-12 text-center focus:border-orange-600 focus:outline-none" placeholder="año" />
+                <span className="border-b border-orange-400 w-10 sm:w-12 text-center font-medium text-orange-600">
+                  {currentDate.year}
+                </span>
+                {/* Campos ocultos para el formulario */}
+                <input {...register('fechaDocumento')} type="hidden" />
+                <input {...register('mesDocumento')} type="hidden" />
+                <input {...register('anoDocumento')} type="hidden" />
               </div>
             </div>
 

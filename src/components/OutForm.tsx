@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { outFormSchema, OutFormData } from '@/lib/validations';
+import { outFormSchema, OutFormData } from '@/types';
 import { SUCURSALES } from '@/constants';
 import { User, Building2, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -62,11 +62,12 @@ export default function OutForm() {
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
 
-      setIsSubmitted(true);
-      reset();
+      // Redirigir a página de éxito
+      window.location.href = '/thanks';
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
-      alert('Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.');
+      // Redirigir a página de error
+      window.location.href = '/resendmessage';
     } finally {
       setIsSubmitting(false);
     }

@@ -2,12 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
-
-interface SignaturePadProps {
-  onSignatureChange: (signature: string) => void;
-  width?: number;
-  height?: number;
-}
+import { SignaturePadProps } from '@/types';
 
 export default function SignaturePad({ 
   onSignatureChange, 

@@ -1,43 +1,11 @@
-import { UseFormRegister } from 'react-hook-form';
-import { OutFormData } from '@/lib/validations';
+// Punto de entrada principal para todos los types del proyecto
+// Exporta todos los types organizados por categorías
 
-// Tipos para sucursales
-export interface Sucursal {
-  id: string;
-  nombre: string;
-  emails: string[];
-}
+// Types de formularios y validación
+export * from './form';
 
-// Tipos para opciones de select
-export interface Option {
-  value: string;
-  label: string;
-}
+// Types de entidades del negocio
+export * from './business';
 
-// Props para componentes UI
-export interface FormFieldProps {
-  label: string;
-  name: keyof OutFormData;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-  error?: string;
-  register: UseFormRegister<OutFormData>;
-  className?: string;
-}
-
-export interface SelectFieldProps {
-  label: string;
-  name: keyof OutFormData;
-  options: Option[];
-  required?: boolean;
-  error?: string;
-  register: UseFormRegister<OutFormData>;
-  className?: string;
-}
-
-export interface EmailJSConfig {
-  serviceId: string;
-  templateId: string;
-  publicKey: string;
-}
+// Types de componentes UI
+export * from './components';

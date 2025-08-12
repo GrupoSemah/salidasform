@@ -80,10 +80,16 @@ export default function ThanksPage() {
             <p className="text-sm text-gray-600 mb-3">
               Si tiene alguna pregunta o necesita modificar su solicitud, no dude en contactarnos:
             </p>
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-gray-700 space-y-2">
               <p><strong>Email:</strong> info@almacenajes.net</p>
-              <p><strong>Teléfono:</strong> +507 XXX-XXXX</p>
-              <p><strong>Horario:</strong> Lunes a Viernes, 8:00 AM - 5:00 PM</p>
+              <p><strong>Teléfono:</strong> +507 224-1111</p>
+              <div>
+                <p><strong>Horario de Atención:</strong></p>
+                <div className="ml-4 mt-1">
+                  <p>• <strong>Lunes a Viernes:</strong> 8:00 AM - 5:00 PM</p>
+                  <p>• <strong>Sábados y Domingos:</strong> 8:00 AM - 12:00 PM</p>
+                </div>
+              </div>
             </div>
           </div>
 

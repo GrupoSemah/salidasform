@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
-import { SUCURSALES } from '@/constants';
+import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES } from '@/constants';
 import { User, Building2, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import SignaturePad from './ui/SignaturePad';
@@ -59,8 +59,10 @@ export default function OutForm() {
         nombre_persona: data.nombrePersona,
         cedula_persona: data.cedulaPersona,
         numero_local: data.numeroLocal,
+        tenant_id: data.tenantId,
         fecha_desocupacion: data.fechaDesocupacion,
         motivo_desocupacion: data.motivoDesocupacion,
+        destino_bienes: data.destinoBienes,
         nombre_empresa: data.nombreEmpresa || 'N/A',
         ruc_empresa: data.rucEmpresa || 'N/A',
         nombre_cuenta: data.nombreCuenta,
@@ -181,6 +183,10 @@ export default function OutForm() {
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
+                      <span>, Tenant ID</span>
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="Tenant ID" />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1">
                       <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
@@ -192,11 +198,7 @@ export default function OutForm() {
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, comunico que estaremos desocupando dicho local aproximadamente el día</span>
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent" />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1">
-                      <span>de</span>
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
-                      <span>. El motivo por el cual desocupo el local es:</span>
+                      <span>.</span>
                     </div>
                   </div>
 
@@ -209,6 +211,8 @@ export default function OutForm() {
                       <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número de cédula" />
                       , quien mantiene alquilado el local 
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
+                      , Tenant ID 
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="Tenant ID" />
                       en <strong>Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
                         <option value="">Seleccione...</option>
@@ -218,13 +222,20 @@ export default function OutForm() {
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" />
-                      de 
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="motivo" />
-                      . El motivo por el cual desocupo el local es:
+                      .
                     </p>
                   </div>
                   
-                  <textarea className="border border-orange-400 w-full mt-4 p-3 h-20 rounded-md focus:border-orange-600 focus:outline-none resize-none" placeholder="Describa el motivo detalladamente..." />
+                  {/* Dropdown para motivo de desocupación */}
+                  <div className="mt-4">
+                    <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
+                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base">
+                      <option value="">Seleccione el motivo...</option>
+                      {MOTIVOS_DESOCUPACION.map(motivo => (
+                        <option key={motivo} value={motivo}>{motivo}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -252,6 +263,10 @@ export default function OutForm() {
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
+                      <span>, Tenant ID</span>
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="Tenant ID" />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-1">
                       <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
@@ -263,11 +278,7 @@ export default function OutForm() {
                     <div className="flex flex-wrap items-center gap-1">
                       <span>, comunico que estaremos desocupando dicho local aproximadamente el día</span>
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent" />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1">
-                      <span>de</span>
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="motivo" />
-                      <span>. El motivo por el cual desocupo el local es:</span>
+                      <span>.</span>
                     </div>
                   </div>
 
@@ -284,6 +295,8 @@ export default function OutForm() {
                       <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número de RUC" />
                       , quien mantiene alquilado el local 
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
+                      , Tenant ID 
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="Tenant ID" />
                       en <strong>Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
                         <option value="">Seleccione...</option>
@@ -293,15 +306,33 @@ export default function OutForm() {
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block" />
-                      de 
-                      <input {...register('motivoDesocupacion')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="motivo" />
-                      . El motivo por el cual desocupo el local es:
+                      .
                     </p>
                   </div>
                   
-                  <textarea className="border border-orange-400 w-full mt-4 p-3 h-20 rounded-md focus:border-orange-600 focus:outline-none resize-none" placeholder="Describa el motivo detalladamente..." />
+                  {/* Dropdown para motivo de desocupación */}
+                  <div className="mt-4">
+                    <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
+                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base">
+                      <option value="">Seleccione el motivo...</option>
+                      {MOTIVOS_DESOCUPACION.map(motivo => (
+                        <option key={motivo} value={motivo}>{motivo}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               )}
+            </div>
+
+            {/* Dropdown para destino de bienes */}
+            <div className="mb-8">
+              <label className="block mb-2 font-medium text-gray-700 text-sm">Mis bienes serán destinados de la siguiente manera:</label>
+              <select {...register('destinoBienes')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base">
+                <option value="">Seleccione el destino...</option>
+                {DESTINO_BIENES.map(destino => (
+                  <option key={destino} value={destino}>{destino}</option>
+                ))}
+              </select>
             </div>
 
             {/* Autorización de devolución */}

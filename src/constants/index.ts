@@ -72,3 +72,22 @@ export const BANCOS_PANAMA = [
   'Banco Delta',
   'Towerbank',
 ];
+
+export const MOTIVOS_DESOCUPACION = [
+  'Recibí nueva casa u oficina',
+  'Quiero eliminar el gasto de arrendamiento',
+  'Pertenencias eliminadas (por venta, donación o descarte)',
+  'Pocas pertenencias para llenar el depósito',
+  'Me cambié a otra sucursal',
+  'Alquilé en otro Storage',
+  'Disminución o cierre de actividad comercial',
+  'Saldré del país indefinidamente',
+];
+
+export const DESTINO_BIENES = [
+  'Pertenencias eliminadas (por venta, donación o descarte)',
+  'Darle uso en un lugar propio',
+  'Guardarlos en un lugar propio',
+  'Guardarlos en otra sucursal',
+  'Guardarlos en otro Storage',
+];

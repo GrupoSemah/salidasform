@@ -14,9 +14,11 @@ export const outFormSchema = z.object({
   nombrePersona: z.string().optional(),
   cedulaPersona: z.string().optional(),
   numeroLocal: z.string().min(1, 'Debe ingresar el número del local'),
+  tenantId: z.string().min(1, 'Debe ingresar el Tenant ID'),
   sucursal: z.string().min(1, 'Debe seleccionar una sucursal'),
   fechaDesocupacion: z.string().min(1, 'Debe ingresar la fecha de desocupación'),
-  motivoDesocupacion: z.string().min(1, 'Debe ingresar el motivo de desocupación'),
+  motivoDesocupacion: z.string().min(1, 'Debe seleccionar el motivo de desocupación'),
+  destinoBienes: z.string().min(1, 'Debe seleccionar el destino de los bienes'),
   
   // Campos adicionales para Persona Jurídica
   nombreEmpresa: z.string().optional(),
@@ -58,8 +60,10 @@ export interface EmailTemplateParams {
   nombre_persona: string;
   cedula_persona: string;
   numero_local: string;
+  tenant_id: string;
   fecha_desocupacion: string;
   motivo_desocupacion: string;
+  destino_bienes: string;
   nombre_empresa: string;
   ruc_empresa: string;
   nombre_cuenta: string;

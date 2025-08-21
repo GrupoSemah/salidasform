@@ -118,17 +118,17 @@ export default function OutForm() {
         <div className="bg-white p-4 sm:p-6 lg:p-8 border border-gray-200 rounded-lg shadow-sm">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Fecha del documento - Auto-generada */}
-            <div className="text-right mb-6 text-sm sm:text-base">
+            <div className="text-right mb-6 text-sm sm:text-base text-gray-800">
               <div className="flex flex-wrap justify-end items-center gap-1">
-                <span>Panamá,</span>
+                <span className="text-gray-800">Panamá,</span>
                 <span className="border-b border-orange-400 w-12 sm:w-16 text-center font-medium text-orange-600">
                   {currentDate.day}
                 </span>
-                <span>de</span>
+                <span className="text-gray-800">de</span>
                 <span className="border-b border-orange-400 w-20 sm:w-24 text-center font-medium text-orange-600">
                   {currentDate.month}
                 </span>
-                <span>de 20</span>
+                <span className="text-gray-800">de 20</span>
                 <span className="border-b border-orange-400 w-10 sm:w-12 text-center font-medium text-orange-600">
                   {currentDate.year}
                 </span>
@@ -141,9 +141,9 @@ export default function OutForm() {
 
             {/* Destinatario */}
             <div className="mb-6">
-              <p className="font-semibold text-sm sm:text-base">Señores</p>
-              <p className="font-semibold text-sm sm:text-base">Almacenajes Minidepósitos</p>
-              <p className="mt-4 text-sm sm:text-base">Estimados Señores:</p>
+              <p className="font-semibold text-sm sm:text-base text-gray-800">Señores</p>
+              <p className="font-semibold text-sm sm:text-base text-gray-800">Almacenajes Minidepósitos</p>
+              <p className="mt-4 text-sm sm:text-base text-gray-800">Estimados Señores:</p>
             </div>
 
             {/* Tipo de Persona */}
@@ -153,12 +153,12 @@ export default function OutForm() {
                 <label className="flex items-center cursor-pointer">
                   <input type="radio" value="natural" checked={tipoPersona === 'natural'} onChange={() => handleTipoPersonaChange('natural')} className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500" />
                   <User className="w-5 h-5 ml-2 mr-2 text-orange-600" />
-                  <span className="text-sm sm:text-base">Persona Natural</span>
+                  <span className="text-sm sm:text-base text-gray-800">Persona Natural</span>
                 </label>
                 <label className="flex items-center cursor-pointer">
                   <input type="radio" value="juridica" checked={tipoPersona === 'juridica'} onChange={() => handleTipoPersonaChange('juridica')} className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500" />
                   <Building2 className="w-5 h-5 ml-2 mr-2 text-orange-600" />
-                  <span className="text-sm sm:text-base">Persona Jurídica</span>
+                  <span className="text-sm sm:text-base text-gray-800">Persona Jurídica</span>
                 </label>
               </div>
             </div>

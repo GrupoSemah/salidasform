@@ -171,23 +171,23 @@ export default function OutForm() {
                   <div className="block sm:hidden space-y-3">
                     {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>Por este medio, yo,</span>
+                      <span className="text-gray-800 font-medium">Por este medio, yo,</span>
                       <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>con cédula de identidad personal número</span>
+                      <span className="text-gray-800 font-medium">con cédula de identidad personal número</span>
                       <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, quien mantiene alquilado el local</span>
+                      <span className="text-gray-800 font-medium">, quien mantiene alquilado el local</span>
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, Tenant ID</span>
+                      <span className="text-gray-800 font-medium">, Tenant ID</span>
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="Tenant ID" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
+                      <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
@@ -196,15 +196,15 @@ export default function OutForm() {
                       </select>
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, comunico que estaremos desocupando dicho local aproximadamente el día</span>
+                      <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent" />
-                      <span>.</span>
+                      <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
 
                   {/* Desktop: Párrafo fluido */}
                   <div className="hidden sm:block">
-                    <p className="leading-relaxed">
+                    <p className="leading-relaxed text-gray-800">
                       Por este medio, yo, 
                       <input {...register('nombrePersona')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="nombre completo" />
                       con cédula de identidad personal número 
@@ -213,7 +213,7 @@ export default function OutForm() {
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
                       , Tenant ID 
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="Tenant ID" />
-                      en <strong>Almacenajes Minidepósitos</strong>, sucursal 
+                      en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
@@ -243,31 +243,31 @@ export default function OutForm() {
                   <div className="block sm:hidden space-y-3">
                     {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>Por este medio, yo,</span>
+                      <span className="text-gray-800 font-medium">Por este medio, yo,</span>
                       <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>con cédula de identidad personal número</span>
+                      <span className="text-gray-800 font-medium">con cédula de identidad personal número</span>
                       <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, actuando en mi condición de Representante Legal de la Empresa</span>
+                      <span className="text-gray-800 font-medium">, actuando en mi condición de Representante Legal de la Empresa</span>
                       <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre de la empresa" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, con RUC</span>
+                      <span className="text-gray-800 font-medium">, con RUC</span>
                       <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de RUC" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, quien mantiene alquilado el local</span>
+                      <span className="text-gray-800 font-medium">, quien mantiene alquilado el local</span>
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, Tenant ID</span>
+                      <span className="text-gray-800 font-medium">, Tenant ID</span>
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="Tenant ID" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>en <strong>Almacenajes Minidepósitos</strong>, sucursal</span>
+                      <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
@@ -276,15 +276,15 @@ export default function OutForm() {
                       </select>
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span>, comunico que estaremos desocupando dicho local aproximadamente el día</span>
+                      <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent" />
-                      <span>.</span>
+                      <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
 
                   {/* Desktop: Párrafo fluido para Persona Jurídica */}
                   <div className="hidden sm:block">
-                    <p className="leading-relaxed">
+                    <p className="leading-relaxed text-gray-800">
                       Por este medio, yo, 
                       <input {...register('nombrePersona')} className="border-b border-orange-400 mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="nombre completo" />
                       con cédula de identidad personal número 
@@ -297,7 +297,7 @@ export default function OutForm() {
                       <input {...register('numeroLocal')} className="border-b border-orange-400 mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="número" />
                       , Tenant ID 
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block" placeholder="Tenant ID" />
-                      en <strong>Almacenajes Minidepósitos</strong>, sucursal 
+                      en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
                         <option value="">Seleccione...</option>
                         {sucursalOptions.map(option => (
@@ -337,8 +337,8 @@ export default function OutForm() {
 
             {/* Autorización de devolución */}
             <div className="mb-8">
-              <p className="mb-4">
-                Asimismo, autorizo a <strong>Almacenajes Minidepósitos</strong> a realizar la devolución correspondiente que se tenga a mi favor, <u>en caso de aplicar</u>, mediante transferencia a la cuenta bancaria detallada a continuación:
+              <p className="mb-4 text-gray-800">
+                Asimismo, autorizo a <strong className="text-orange-600">Almacenajes Minidepósitos</strong> a realizar la devolución correspondiente que se tenga a mi favor, <u>en caso de aplicar</u>, mediante transferencia a la cuenta bancaria detallada a continuación:
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -355,11 +355,11 @@ export default function OutForm() {
                   <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mt-2">
                     <label className="flex items-center cursor-pointer">
                       <input {...register('tipoCuenta')} type="radio" value="corriente" className="mr-2 w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500" />
-                      <span className="text-sm sm:text-base">Corriente</span>
+                      <span className="text-sm sm:text-base text-gray-800">Corriente</span>
                     </label>
                     <label className="flex items-center cursor-pointer">
                       <input {...register('tipoCuenta')} type="radio" value="ahorro" className="mr-2 w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500" />
-                      <span className="text-sm sm:text-base">Ahorro</span>
+                      <span className="text-sm sm:text-base text-gray-800">Ahorro</span>
                     </label>
                   </div>
                 </div>
@@ -372,7 +372,7 @@ export default function OutForm() {
 
             {/* Despedida */}
             <div className="mb-8">
-              <p className="text-sm sm:text-base">Atentamente,</p>
+              <p className="text-sm sm:text-base text-gray-800">Atentamente,</p>
             </div>
 
             {/* Firma */}

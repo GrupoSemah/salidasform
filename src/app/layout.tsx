@@ -32,10 +32,15 @@ export const metadata: Metadata = {
     title: "Formulario de Desocupación - Almacenajes SA",
     description: "Sistema de solicitud de desocupación de minidepósitos para clientes de Almacenajes SA",
   },
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: '/favicon.ico',
   },
+};
+
+// Viewport configuration (Next.js 15+)
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

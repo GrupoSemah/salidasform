@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
 import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES } from '@/constants';
 import { User, Building2, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
 
@@ -15,6 +16,8 @@ export default function OutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentDate, setCurrentDate] = useState({ day: '', month: '', year: '' });
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const RATE_LIMIT_MS = 3000; // 3 segundos entre envíos
 
   const {
     register,
@@ -44,52 +47,92 @@ export default function OutForm() {
     setValue('anoDocumento', year);
   }, [setValue]);
 
-  const onSubmit = async (data: OutFormData) => {
+  // Función para sanitizar strings
+  const sanitizeInput = (input: string | undefined): string => {
+    if (!input) return '';
+    return DOMPurify.sanitize(input.trim());
+  };
+
+  // Función para logging seguro de errores
+  const logSecureError = (error: unknown, context: string) => {
+    // Solo loggear información no sensible en producción
+    console.warn(`[${context}] Error de sistema:`, {
+      timestamp: new Date().toISOString(),
+      context,
+      type: error instanceof Error ? error.constructor.name : typeof error
+    });
+  };
+
+  const onSubmit = useCallback(async (data: OutFormData) => {
+    // Rate limiting check
+    const now = Date.now();
+    if (now - lastSubmitTime < RATE_LIMIT_MS) {
+      logSecureError(new Error('Rate limit exceeded'), 'RATE_LIMIT');
+      return;
+    }
+    
     setIsSubmitting(true);
+    setLastSubmitTime(now);
     
     try {
       const sucursal = SUCURSALES.find(s => s.id === data.sucursal);
       const emailsDestino = sucursal?.emails || ['info@almacenajes.net'];
 
+      // Sanitizar todos los inputs antes del envío
       const templateParams = {
         emails: emailsDestino.join(','),
         sucursal_nombre: sucursal?.nombre || 'No especificada',
         tipo_persona: data.tipoPersona === 'natural' ? 'Persona Natural' : 'Persona Jurídica',
-        fecha_documento: `${data.fechaDocumento}/${data.mesDocumento}/${data.anoDocumento}`,
-        nombre_persona: data.nombrePersona,
-        cedula_persona: data.cedulaPersona,
-        numero_local: data.numeroLocal,
-        tenant_id: data.tenantId,
-        fecha_desocupacion: data.fechaDesocupacion,
-        motivo_desocupacion: data.motivoDesocupacion,
-        destino_bienes: data.destinoBienes,
-        nombre_empresa: data.nombreEmpresa || 'N/A',
-        ruc_empresa: data.rucEmpresa || 'N/A',
-        nombre_cuenta: data.nombreCuenta,
-        banco: data.banco,
+        fecha_documento: `${sanitizeInput(data.fechaDocumento)}/${sanitizeInput(data.mesDocumento)}/${sanitizeInput(data.anoDocumento)}`,
+        nombre_persona: sanitizeInput(data.nombrePersona),
+        cedula_persona: sanitizeInput(data.cedulaPersona),
+        numero_local: sanitizeInput(data.numeroLocal),
+        tenant_id: sanitizeInput(data.tenantId),
+        fecha_desocupacion: sanitizeInput(data.fechaDesocupacion),
+        motivo_desocupacion: sanitizeInput(data.motivoDesocupacion),
+        destino_bienes: sanitizeInput(data.destinoBienes),
+        nombre_empresa: sanitizeInput(data.nombreEmpresa) || 'N/A',
+        ruc_empresa: sanitizeInput(data.rucEmpresa) || 'N/A',
+        nombre_cuenta: sanitizeInput(data.nombreCuenta),
+        banco: sanitizeInput(data.banco),
         tipo_cuenta: data.tipoCuenta === 'corriente' ? 'Corriente' : 'Ahorro',
-        numero_cuenta: data.numeroCuenta,
-        nombre_firma: data.nombreFirma,
+        numero_cuenta: sanitizeInput(data.numeroCuenta),
+        nombre_firma: sanitizeInput(data.nombreFirma),
         fecha_envio: new Date().toLocaleString('es-PA'),
       };
 
-      await emailjs.send(
+      // Timeout para EmailJS (10 segundos)
+      const emailPromise = emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         templateParams,
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
+      
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email timeout')), 10000)
+      );
+      
+      await Promise.race([emailPromise, timeoutPromise]);
 
-      // Redirigir a página de éxito
-      window.location.href = '/thanks';
+      // Validación de redirect seguro
+      const allowedUrls = ['/thanks'];
+      const targetUrl = '/thanks';
+      if (allowedUrls.includes(targetUrl)) {
+        window.location.href = targetUrl;
+      }
     } catch (error) {
-      console.error('Error al enviar el formulario:', error);
-      // Redirigir a página de error
-      window.location.href = '/resendmessage';
+      logSecureError(error, 'EMAIL_SEND');
+      // Redirigir a página de error de forma segura
+      const errorUrl = '/resendmessage';
+      const allowedErrorUrls = ['/resendmessage'];
+      if (allowedErrorUrls.includes(errorUrl)) {
+        window.location.href = errorUrl;
+      }
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [lastSubmitTime]);
 
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);

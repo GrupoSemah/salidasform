@@ -188,8 +188,8 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
-                        <option value="">Seleccione...</option>
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500">
+                        <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
@@ -197,7 +197,7 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-800" />
                       <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
@@ -215,13 +215,13 @@ export default function OutForm() {
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500" placeholder="Tenant ID" />
                       en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
-                        <option value="">Seleccione...</option>
+                        <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block text-gray-800" />
                       .
                     </p>
                   </div>
@@ -230,7 +230,7 @@ export default function OutForm() {
                   <div className="mt-4">
                     <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
                     <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
-                      <option value="">Seleccione el motivo...</option>
+                      <option value="" className="text-gray-500">Seleccione el motivo...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>
                       ))}
@@ -244,32 +244,32 @@ export default function OutForm() {
                     {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="nombre completo" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">con cédula de identidad personal número</span>
-                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="número de cédula" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, actuando en mi condición de Representante Legal de la Empresa</span>
-                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="nombre de la empresa" />
+                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="nombre de la empresa" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, con RUC</span>
-                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número de RUC" />
+                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="número de RUC" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, quien mantiene alquilado el local</span>
-                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="número" />
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, Tenant ID</span>
-                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent" placeholder="Tenant ID" />
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="Tenant ID" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent">
-                        <option value="">Seleccione...</option>
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500">
+                        <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
@@ -277,7 +277,7 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-800" />
                       <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
@@ -299,13 +299,13 @@ export default function OutForm() {
                       <input {...register('tenantId')} className="border-b border-orange-400 mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500" placeholder="Tenant ID" />
                       en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
                       <select {...register('sucursal')} className="border-b border-orange-400 mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block">
-                        <option value="">Seleccione...</option>
+                        <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block text-gray-800" />
                       .
                     </p>
                   </div>
@@ -314,7 +314,7 @@ export default function OutForm() {
                   <div className="mt-4">
                     <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
                     <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
-                      <option value="">Seleccione el motivo...</option>
+                      <option value="" className="text-gray-500">Seleccione el motivo...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>
                       ))}
@@ -328,7 +328,7 @@ export default function OutForm() {
             <div className="mb-8">
               <label className="block mb-2 font-medium text-gray-700 text-sm">Mis bienes serán destinados de la siguiente manera:</label>
               <select {...register('destinoBienes')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
-                <option value="">Seleccione el destino...</option>
+                <option value="" className="text-gray-500">Seleccione el destino...</option>
                 {DESTINO_BIENES.map(destino => (
                   <option key={destino} value={destino}>{destino}</option>
                 ))}

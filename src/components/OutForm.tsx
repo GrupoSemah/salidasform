@@ -10,7 +10,6 @@ import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
-import { generateFormPDF } from '@/lib/pdfGenerator';
 
 export default function OutForm() {
   const [tipoPersona, setTipoPersona] = useState<'natural' | 'juridica'>('natural');
@@ -19,6 +18,7 @@ export default function OutForm() {
   const [currentDate, setCurrentDate] = useState({ day: '', month: '', year: '' });
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [signature, setSignature] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const RATE_LIMIT_MS = 3000; // 3 segundos entre envíos
 
   const {
@@ -80,17 +80,27 @@ export default function OutForm() {
       const sucursal = SUCURSALES.find(s => s.id === data.sucursal);
       const emailsDestino = sucursal?.emails || ['info@almacenajes.net'];
 
-      // Generar PDF completo del formulario con firma incluida
-      const pdfDataUri = generateFormPDF({ 
-        data, 
-        signature: signature || undefined 
-      });
+      // Incluir la firma directamente como imagen inline en el email
+      let firmaDigitalParam = '';
       
-      // Extraer solo la parte base64 del data URI
-      const pdfBase64 = pdfDataUri.split(',')[1];
-      
-      // Crear nombre de archivo único
-      const fileName = `Formulario_Desocupacion_${data.numeroLocal || 'SinNumero'}_${Date.now()}.pdf`;
+      if (signature && signature !== '') {
+        try {
+          // Verificar que la firma no sea demasiado grande (aprox 30KB max)
+          const sizeInBytes = (signature.length * 3) / 4;
+          if (sizeInBytes > 30000) {
+            console.warn('Signature too large, sending text confirmation only');
+            firmaDigitalParam = 'Firma digital incluida en el formulario original';
+          } else {
+            // Incluir la imagen completa con data URI para mostrar inline
+            firmaDigitalParam = signature;
+          }
+        } catch (sigError) {
+          console.error('Signature processing error:', sigError);
+          firmaDigitalParam = 'Firma digital incluida en el formulario original';
+        }
+      } else {
+        firmaDigitalParam = 'No se incluyó firma digital';
+      }
 
       // Sanitizar todos los inputs antes del envío
       const templateParams = {
@@ -113,9 +123,8 @@ export default function OutForm() {
         numero_cuenta: sanitizeInput(data.numeroCuenta),
         nombre_firma: sanitizeInput(data.nombreFirma),
         fecha_envio: new Date().toLocaleString('es-PA'),
-        // Incluir el PDF como attachment
-        attachment_name: fileName,
-        attachment_content: pdfBase64,
+        // Incluir firma directamente en el template como imagen inline
+        firma_digital: firmaDigitalParam,
       };
 
       // Timeout para EmailJS (15 segundos debido al attachment)
@@ -139,13 +148,21 @@ export default function OutForm() {
         window.location.href = targetUrl;
       }
     } catch (error) {
+      console.error('Email Send Error:', error);
       logSecureError(error, 'EMAIL_SEND');
-      // Redirigir a página de error de forma segura
-      const errorUrl = '/resendmessage';
-      const allowedErrorUrls = ['/resendmessage'];
-      if (allowedErrorUrls.includes(errorUrl)) {
-        window.location.href = errorUrl;
-      }
+      
+      // Mostrar error en la UI en lugar de redirigir
+      const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorMessage(`Error al enviar: ${errorMsg}`);
+      
+      // Solo redirigir después de 5 segundos para permitir ver el error
+      setTimeout(() => {
+        const errorUrl = '/resendmessage';
+        const allowedErrorUrls = ['/resendmessage'];
+        if (allowedErrorUrls.includes(errorUrl)) {
+          window.location.href = errorUrl;
+        }
+      }, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -447,6 +464,25 @@ export default function OutForm() {
                 <SignaturePad onSignatureChange={handleSignatureChange} width={280} height={140} />
               </div>
             </div>
+
+            {/* Mostrar error si existe */}
+            {errorMessage && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">Error al procesar formulario</h3>
+                    <div className="mt-2 text-sm text-red-700">
+                      <p>{errorMessage}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Botón de envío */}
             <div className="text-center pt-6 sm:pt-8">

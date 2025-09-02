@@ -8,14 +8,15 @@ export interface PDFGeneratorOptions {
 }
 
 export const generateFormPDF = ({ data, signature }: PDFGeneratorOptions): string => {
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 20;
-  let yPosition = 30;
+  try {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    let yPosition = 30;
 
-  // Configuración de fuentes
-  doc.setFontSize(16);
-  doc.setFont('helvetica', 'bold');
+    // Configuración de fuentes
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
 
   // Título
   doc.text('FORMULARIO DE SOLICITUD DE DESOCUPACIÓN', pageWidth / 2, yPosition, { align: 'center' });
@@ -145,6 +146,10 @@ export const generateFormPDF = ({ data, signature }: PDFGeneratorOptions): strin
   doc.setTextColor(128, 128, 128);
   doc.text(`Documento generado el: ${fechaGeneracion}`, margin, doc.internal.pageSize.getHeight() - 10);
 
-  // Retornar el PDF como base64
-  return doc.output('datauristring');
+    // Retornar el PDF como base64
+    return doc.output('datauristring');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw new Error('PDF generation failed');
+  }
 };

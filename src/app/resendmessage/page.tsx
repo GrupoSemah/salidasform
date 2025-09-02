@@ -2,10 +2,18 @@
 
 import { AlertTriangle, RefreshCw, Home, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ResendMessagePage() {
   const [isRetrying, setIsRetrying] = useState(false);
+  const [errorId, setErrorId] = useState('');
+  const [timestamp, setTimestamp] = useState('');
+
+  useEffect(() => {
+    // Generar ID y timestamp solo en el cliente para evitar hydration mismatch
+    setErrorId(Math.random().toString(36).substr(2, 9).toUpperCase());
+    setTimestamp(new Date().toISOString());
+  }, []);
 
   const handleRetry = () => {
     setIsRetrying(true);
@@ -143,7 +151,7 @@ export default function ResendMessagePage() {
               Almacenajes Minidepósitos - Sistema de Gestión de Solicitudes
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Error ID: {Math.random().toString(36).substr(2, 9).toUpperCase()} - {new Date().toISOString()}
+              Error ID: {errorId || 'Cargando...'} - {timestamp || 'Cargando...'}
             </p>
           </div>
         </div>

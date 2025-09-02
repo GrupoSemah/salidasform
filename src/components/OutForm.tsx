@@ -10,6 +10,7 @@ import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
+import { generateFormPDF } from '@/lib/pdfGenerator';
 
 export default function OutForm() {
   const [tipoPersona, setTipoPersona] = useState<'natural' | 'juridica'>('natural');
@@ -17,6 +18,7 @@ export default function OutForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentDate, setCurrentDate] = useState({ day: '', month: '', year: '' });
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [signature, setSignature] = useState<string>('');
   const RATE_LIMIT_MS = 3000; // 3 segundos entre envíos
 
   const {
@@ -78,6 +80,18 @@ export default function OutForm() {
       const sucursal = SUCURSALES.find(s => s.id === data.sucursal);
       const emailsDestino = sucursal?.emails || ['info@almacenajes.net'];
 
+      // Generar PDF completo del formulario con firma incluida
+      const pdfDataUri = generateFormPDF({ 
+        data, 
+        signature: signature || undefined 
+      });
+      
+      // Extraer solo la parte base64 del data URI
+      const pdfBase64 = pdfDataUri.split(',')[1];
+      
+      // Crear nombre de archivo único
+      const fileName = `Formulario_Desocupacion_${data.numeroLocal || 'SinNumero'}_${Date.now()}.pdf`;
+
       // Sanitizar todos los inputs antes del envío
       const templateParams = {
         emails: emailsDestino.join(','),
@@ -99,9 +113,12 @@ export default function OutForm() {
         numero_cuenta: sanitizeInput(data.numeroCuenta),
         nombre_firma: sanitizeInput(data.nombreFirma),
         fecha_envio: new Date().toLocaleString('es-PA'),
+        // Incluir el PDF como attachment
+        attachment_name: fileName,
+        attachment_content: pdfBase64,
       };
 
-      // Timeout para EmailJS (10 segundos)
+      // Timeout para EmailJS (15 segundos debido al attachment)
       const emailPromise = emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
@@ -110,7 +127,7 @@ export default function OutForm() {
       );
       
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Email timeout')), 10000)
+        setTimeout(() => reject(new Error('Email timeout')), 15000)
       );
       
       await Promise.race([emailPromise, timeoutPromise]);
@@ -132,15 +149,16 @@ export default function OutForm() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [lastSubmitTime]);
+  }, [lastSubmitTime, signature]);
 
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);
     setValue('tipoPersona', tipo);
   };
 
-  const handleSignatureChange = (signature: string) => {
-    setValue('firmaDigital', signature);
+  const handleSignatureChange = (signatureData: string) => {
+    setSignature(signatureData);
+    setValue('firmaDigital', signatureData);
   };
 
   const handleNewForm = () => {

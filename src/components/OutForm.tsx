@@ -31,6 +31,9 @@ export default function OutForm() {
     defaultValues: {
       tipoPersona: 'natural',
       tipoCuenta: 'corriente',
+      nombreCuenta: '',
+      banco: '',
+      numeroCuenta: ''
     }
   });
 
@@ -117,10 +120,10 @@ export default function OutForm() {
         destino_bienes: sanitizeInput(data.destinoBienes),
         nombre_empresa: sanitizeInput(data.nombreEmpresa) || 'N/A',
         ruc_empresa: sanitizeInput(data.rucEmpresa) || 'N/A',
-        nombre_cuenta: sanitizeInput(data.nombreCuenta),
-        banco: sanitizeInput(data.banco),
-        tipo_cuenta: data.tipoCuenta === 'corriente' ? 'Corriente' : 'Ahorro',
-        numero_cuenta: sanitizeInput(data.numeroCuenta),
+        nombre_cuenta: sanitizeInput(data.nombreCuenta) || 'No especificado',
+        banco: sanitizeInput(data.banco) || 'No especificado',
+        tipo_cuenta: data.tipoCuenta ? (data.tipoCuenta === 'corriente' ? 'Corriente' : 'Ahorro') : 'No especificado',
+        numero_cuenta: sanitizeInput(data.numeroCuenta) || 'No especificado',
         nombre_firma: sanitizeInput(data.nombreFirma),
         fecha_envio: new Date().toLocaleString('es-PA'),
         // Incluir firma directamente en el template como imagen inline
@@ -419,17 +422,29 @@ export default function OutForm() {
                 Asimismo, autorizo a <strong className="text-orange-600">Almacenajes Minidepósitos</strong> a realizar la devolución correspondiente que se tenga a mi favor, <u>en caso de aplicar</u>, mediante transferencia a la cuenta bancaria detallada a continuación:
               </p>
               
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-medium">Nota:</span> Los siguientes campos son <strong>opcionales</strong>. Solo complete esta información si desea que se realice una devolución mediante transferencia bancaria.
+                </p>
+              </div>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Nombre de la Cuenta:</label>
-                  <input {...register('nombreCuenta')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre completo del titular" />
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">
+                    Nombre de la Cuenta: <span className="text-gray-500 font-normal">(opcional)</span>
+                  </label>
+                  <input {...register('nombreCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre completo del titular (opcional)" />
                 </div>
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Banco:</label>
-                  <input {...register('banco')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre del banco" />
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">
+                    Banco: <span className="text-gray-500 font-normal">(opcional)</span>
+                  </label>
+                  <input {...register('banco')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre del banco (opcional)" />
                 </div>
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Tipo de Cuenta:</label>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">
+                    Tipo de Cuenta: <span className="text-gray-500 font-normal">(opcional)</span>
+                  </label>
                   <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mt-2">
                     <label className="flex items-center cursor-pointer">
                       <input {...register('tipoCuenta')} type="radio" value="corriente" className="mr-2 w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500" />
@@ -442,8 +457,10 @@ export default function OutForm() {
                   </div>
                 </div>
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">No. De Cuenta:</label>
-                  <input {...register('numeroCuenta')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Número de cuenta" />
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">
+                    No. De Cuenta: <span className="text-gray-500 font-normal">(opcional)</span>
+                  </label>
+                  <input {...register('numeroCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Número de cuenta (opcional)" />
                 </div>
               </div>
             </div>

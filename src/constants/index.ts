@@ -4,17 +4,17 @@ export const SUCURSALES: Sucursal[] = [
   { 
     id: 'vista-hermosa', 
     nombre: 'Vista Hermosa', 
-    emails: ['vista.hermosa@almacenajes.net', 'ventas.vistahermosa@almacenajes.net'] 
+    emails: ['vistahermosa@almacenajes.net', 'ventas.vistahermosa@almacenajes.net'] 
   },
   { 
     id: 'rio-abajo', 
     nombre: 'Rio Abajo', 
-    emails: ['rio.abajo@almacenajes.net', 'ventas.rioabajo@almacenajes.net'] 
+    emails: ['rioabajo@almacenajes.net', 'ventas.rioabajo@almacenajes.net'] 
   },
   { 
     id: 'costa-del-este', 
     nombre: 'Costa del Este', 
-    emails: ['costa.este@almacenajes.net', 'ventas.costadel este@almacenajes.net'] 
+    emails: ['costaeste@almacenajes.net', 'ventas.costadeleste@almacenajes.net'] 
   },
   { 
     id: 'albrook', 
@@ -29,12 +29,12 @@ export const SUCURSALES: Sucursal[] = [
   { 
     id: 'san-antonio', 
     nombre: 'San Antonio', 
-    emails: ['san.antonio@almacenajes.net', 'ventas.santonio@almacenajes.net'] 
+    emails: ['sanantonio@almacenajes.net', 'ventas.sanantonio@almacenajes.net'] 
   },
   { 
     id: 'tumba-muerto', 
     nombre: 'Tumba Muerto', 
-    emails: ['ventas.tumbamuerto@almacenajes.net'] 
+    emails: ['albrook@almacenajes.net', 'ventas.tumbamuerto@almacenajes.net'] 
   },
   { 
     id: 'colon', 
@@ -44,7 +44,7 @@ export const SUCURSALES: Sucursal[] = [
   { 
     id: 'hato-montana', 
     nombre: 'Hato Montaña', 
-    emails: ['hato.montana@almacenajes.net'] 
+    emails: ['hatomontana@almacenajes.net'] 
   },
   { 
     id: 'gorgona', 

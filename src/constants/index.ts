@@ -14,7 +14,7 @@ export const SUCURSALES: Sucursal[] = [
   { 
     id: 'costa-del-este', 
     nombre: 'Costa del Este', 
-    emails: ['costaeste@almacenajes.net', 'ventas.costadeleste@almacenajes.net'] 
+    emails: ['costadeleste@almacenajes.net', 'ventas.costadeleste@almacenajes.net'] 
   },
   { 
     id: 'albrook', 

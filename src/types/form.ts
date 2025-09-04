@@ -24,11 +24,11 @@ export const outFormSchema = z.object({
   nombreEmpresa: z.string().optional(),
   rucEmpresa: z.string().optional(),
   
-  // Datos bancarios para devolución
-  nombreCuenta: z.string().min(1, 'Debe ingresar el nombre de la cuenta'),
-  banco: z.string().min(1, 'Debe ingresar el banco'),
-  tipoCuenta: z.enum(['corriente', 'ahorro']),
-  numeroCuenta: z.string().min(1, 'Debe ingresar el número de cuenta'),
+  // Datos bancarios para devolución (opcionales)
+  nombreCuenta: z.string().optional(),
+  banco: z.string().optional(),
+  tipoCuenta: z.enum(['corriente', 'ahorro']).optional(),
+  numeroCuenta: z.string().optional(),
   
   // Firma
   nombreFirma: z.string().min(1, 'Debe ingresar el nombre para la firma'),

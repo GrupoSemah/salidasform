@@ -12,6 +12,7 @@ export const outFormSchema = z.object({
   
   // Campos para Persona Natural
   nombrePersona: z.string().optional(),
+  correoPersona: z.string().email('Debe ingresar un correo electrónico válido').min(1, 'Debe ingresar su correo electrónico'),
   cedulaPersona: z.string().optional(),
   numeroLocal: z.string().min(1, 'Debe ingresar el número del local'),
   tenantId: z.string().min(1, 'Debe ingresar el Tenant ID'),
@@ -58,6 +59,7 @@ export interface EmailTemplateParams {
   tipo_persona: string;
   fecha_documento: string;
   nombre_persona: string;
+  correo_persona: string;
   cedula_persona: string;
   numero_local: string;
   tenant_id: string;

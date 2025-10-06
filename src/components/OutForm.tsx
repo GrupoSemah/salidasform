@@ -29,6 +29,9 @@ export default function OutForm() {
     formState: { errors }
   } = useForm<OutFormData>({
     resolver: zodResolver(outFormSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    shouldUnregister: false,
     defaultValues: {
       tipoPersona: 'natural',
       tipoCuenta: 'corriente',
@@ -76,6 +79,9 @@ export default function OutForm() {
       logSecureError(new Error('Rate limit exceeded'), 'RATE_LIMIT');
       return;
     }
+    
+    // Debug: ver los datos que se están enviando
+    console.log('Datos del formulario:', data);
     
     setIsSubmitting(true);
     setLastSubmitTime(now);
@@ -195,6 +201,15 @@ export default function OutForm() {
     setTipoPersona('natural');
   };
 
+  const onError = (validationErrors: Record<string, unknown>) => {
+    console.log('Errores de validación:', validationErrors);
+    setErrorMessage('Por favor, complete todos los campos requeridos correctamente.');
+    // Limpiar el mensaje de error después de 5 segundos
+    setTimeout(() => {
+      setErrorMessage('');
+    }, 5000);
+  };
+
   if (isSubmitted) {
     return <SuccessMessage onNewForm={handleNewForm} />;
   }
@@ -205,7 +220,7 @@ export default function OutForm() {
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8 px-2 sm:px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white p-4 sm:p-6 lg:p-8 border border-gray-200 rounded-lg shadow-sm">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
             {/* Fecha del documento - Auto-generada */}
             <div className="text-right mb-6 text-sm sm:text-base text-gray-800">
               <div className="flex flex-wrap justify-end items-center gap-1">
@@ -383,7 +398,7 @@ export default function OutForm() {
                   {/* Dropdown para motivo de desocupación */}
                   <div className="mt-4">
                     <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
-                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
+                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
                       <option value="" className="text-gray-500">Seleccione el motivo...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>
@@ -537,7 +552,7 @@ export default function OutForm() {
                   {/* Dropdown para motivo de desocupación */}
                   <div className="mt-4">
                     <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
-                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
+                    <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
                       <option value="" className="text-gray-500">Seleccione el motivo...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>

@@ -30,7 +30,7 @@ export default function OutForm() {
   } = useForm<OutFormData>({
     resolver: zodResolver(outFormSchema),
     mode: 'onSubmit',
-    shouldUnregister: false,
+    shouldUnregister: true, // CAMBIO: true para que desregistre inputs ocultos
     defaultValues: {
       tipoPersona: 'natural',
       tipoCuenta: 'corriente',
@@ -200,6 +200,12 @@ export default function OutForm() {
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);
     setValue('tipoPersona', tipo);
+    
+    // Limpiar campos específicos de persona jurídica si se cambia a natural
+    if (tipo === 'natural') {
+      setValue('nombreEmpresa', '');
+      setValue('rucEmpresa', '');
+    }
   };
 
   const handleSignatureChange = (signatureData: string) => {

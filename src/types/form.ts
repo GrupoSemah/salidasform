@@ -12,7 +12,7 @@ export const outFormSchema = z.object({
   
   // Campos para Persona Natural
   nombrePersona: z.string().optional(),
-  correoPersona: z.string().email('Debe ingresar un correo electrónico válido').min(1, 'Debe ingresar su correo electrónico'),
+  correoPersona: z.string().min(1, 'Debe ingresar su correo electrónico').email('Debe ingresar un correo electrónico válido'),
   cedulaPersona: z.string().optional(),
   numeroLocal: z.string().min(1, 'Debe ingresar el número del local'),
   tenantId: z.string().min(1, 'Debe ingresar el Tenant ID'),
@@ -34,15 +34,42 @@ export const outFormSchema = z.object({
   // Firma
   nombreFirma: z.string().min(1, 'Debe ingresar el nombre para la firma'),
   firmaDigital: z.string().optional(),
-}).refine((data) => {
-  if (data.tipoPersona === 'natural') {
-    return data.nombrePersona && data.cedulaPersona;
-  } else {
-    return data.nombrePersona && data.cedulaPersona && data.nombreEmpresa && data.rucEmpresa;
+}).superRefine((data, ctx) => {
+  // Validar campos según tipo de persona
+  if (!data.nombrePersona || data.nombrePersona.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Debe ingresar su nombre completo',
+      path: ['nombrePersona']
+    });
   }
-}, {
-  message: 'Debe completar todos los campos requeridos según el tipo de persona',
-  path: ['tipoPersona']
+  
+  if (!data.cedulaPersona || data.cedulaPersona.trim() === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Debe ingresar su número de cédula',
+      path: ['cedulaPersona']
+    });
+  }
+  
+  // Validaciones adicionales para persona jurídica
+  if (data.tipoPersona === 'juridica') {
+    if (!data.nombreEmpresa || data.nombreEmpresa.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Debe ingresar el nombre de la empresa',
+        path: ['nombreEmpresa']
+      });
+    }
+    
+    if (!data.rucEmpresa || data.rucEmpresa.trim() === '') {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Debe ingresar el RUC de la empresa',
+        path: ['rucEmpresa']
+      });
+    }
+  }
 });
 
 // Tipo inferido del schema

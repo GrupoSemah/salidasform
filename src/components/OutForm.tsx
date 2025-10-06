@@ -83,6 +83,16 @@ export default function OutForm() {
     // Debug: ver los datos que se están enviando
     console.log('Datos del formulario:', data);
     
+    // Validar variables de entorno
+    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
+        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 
+        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
+      console.error('Error: Variables de entorno de EmailJS no configuradas');
+      setErrorMessage('Error de configuración del sistema. Por favor, contacte al administrador.');
+      setIsSubmitting(false);
+      return;
+    }
+    
     setIsSubmitting(true);
     setLastSubmitTime(now);
     
@@ -152,10 +162,11 @@ export default function OutForm() {
       
       await Promise.race([emailPromise, timeoutPromise]);
 
-      // Limpiar formulario solo después de envío exitoso
-      reset();
-      setSignature('');
-      setTipoPersona('natural');
+      // Email enviado exitosamente - redirigir inmediatamente
+      // NO limpiar el formulario aquí para evitar que el usuario vea campos vacíos
+      // La limpieza se hará en la página /thanks si el usuario regresa
+      
+      console.log('Email enviado exitosamente, redirigiendo...');
       
       // Validación de redirect seguro
       const allowedUrls = ['/thanks'];
@@ -165,25 +176,21 @@ export default function OutForm() {
       }
     } catch (error) {
       console.error('Email Send Error:', error);
+      console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('Error message:', error instanceof Error ? error.message : String(error));
       logSecureError(error, 'EMAIL_SEND');
       
       // Mostrar error en la UI sin limpiar los campos
       const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
-      setErrorMessage(`Error al enviar: ${errorMsg}`);
+      setErrorMessage(`Error al enviar el formulario: ${errorMsg}. Por favor, intente nuevamente.`);
       
       // NO limpiar el formulario cuando hay error - mantener los valores
-      // Solo redirigir después de 5 segundos para permitir ver el error
-      setTimeout(() => {
-        const errorUrl = '/resendmessage';
-        const allowedErrorUrls = ['/resendmessage'];
-        if (allowedErrorUrls.includes(errorUrl)) {
-          window.location.href = errorUrl;
-        }
-      }, 5000);
+      // NO redirigir automáticamente - dejar que el usuario vea el error y decida
+      console.log('Formulario NO enviado. Los datos se mantienen para que pueda reintentar.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [lastSubmitTime, signature, reset]);
+  }, [lastSubmitTime, signature]);
 
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);

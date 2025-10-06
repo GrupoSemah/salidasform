@@ -30,7 +30,6 @@ export default function OutForm() {
   } = useForm<OutFormData>({
     resolver: zodResolver(outFormSchema),
     mode: 'onSubmit',
-    reValidateMode: 'onSubmit',
     shouldUnregister: false,
     defaultValues: {
       tipoPersona: 'natural',
@@ -73,10 +72,17 @@ export default function OutForm() {
   };
 
   const onSubmit = useCallback(async (data: OutFormData) => {
+    console.log('=== INICIO onSubmit ===');
+    console.log('Device:', /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'MOBILE' : 'DESKTOP');
+    
+    // Limpiar mensaje de error previo
+    setErrorMessage('');
+    
     // Rate limiting check
     const now = Date.now();
     if (now - lastSubmitTime < RATE_LIMIT_MS) {
       logSecureError(new Error('Rate limit exceeded'), 'RATE_LIMIT');
+      setErrorMessage('Por favor, espere unos segundos antes de enviar nuevamente.');
       return;
     }
     
@@ -89,7 +95,6 @@ export default function OutForm() {
         !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
       console.error('Error: Variables de entorno de EmailJS no configuradas');
       setErrorMessage('Error de configuración del sistema. Por favor, contacte al administrador.');
-      setIsSubmitting(false);
       return;
     }
     

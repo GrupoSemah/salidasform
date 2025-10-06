@@ -30,7 +30,7 @@ export default function OutForm() {
   } = useForm<OutFormData>({
     resolver: zodResolver(outFormSchema),
     mode: 'onSubmit',
-    shouldUnregister: true, // CAMBIO: true para que desregistre inputs ocultos
+    shouldUnregister: false, // Mantener valores aunque inputs estén ocultos
     defaultValues: {
       tipoPersona: 'natural',
       tipoCuenta: 'corriente',
@@ -289,12 +289,11 @@ export default function OutForm() {
             <div className="mb-8 leading-relaxed text-sm sm:text-base">
               {tipoPersona === 'natural' ? (
                 <div className="space-y-4">
-                  {/* Layout mobile vs desktop */}
-                  <div className="block sm:hidden space-y-3">
-                    {/* Mobile: Cada línea separada */}
+                  {/* Formulario unificado - funciona en mobile y desktop */}
+                  <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] sm:w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                     </div>
                     {errors.nombrePersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -347,71 +346,6 @@ export default function OutForm() {
                       <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
-
-                  {/* Desktop: Párrafo fluido */}
-                  <div className="hidden sm:block">
-                    <p className="leading-relaxed text-gray-800">
-                      Por este medio, yo, 
-                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
-                      con correo electrónico 
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
-                      y cédula de identidad personal número 
-                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
-                      , quien mantiene alquilado el local 
-                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
-                      , Tenant ID 
-                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
-                      en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
-                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
-                        <option value="" className="text-gray-500">Seleccione...</option>
-                        {sucursalOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                      , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
-                      .
-                    </p>
-                    
-                    {/* Mostrar errores para desktop */}
-                    <div className="mt-2 space-y-1">
-                      {errors.nombrePersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.nombrePersona.message}
-                        </div>
-                      )}
-                      {errors.correoPersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.correoPersona.message}
-                        </div>
-                      )}
-                      {errors.cedulaPersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.cedulaPersona.message}
-                        </div>
-                      )}
-                      {errors.numeroLocal && (
-                        <div className="text-red-500 text-xs">
-                          {errors.numeroLocal.message}
-                        </div>
-                      )}
-                      {errors.tenantId && (
-                        <div className="text-red-500 text-xs">
-                          {errors.tenantId.message}
-                        </div>
-                      )}
-                      {errors.sucursal && (
-                        <div className="text-red-500 text-xs">
-                          {errors.sucursal.message}
-                        </div>
-                      )}
-                      {errors.fechaDesocupacion && (
-                        <div className="text-red-500 text-xs">
-                          {errors.fechaDesocupacion.message}
-                        </div>
-                      )}
-                    </div>
-                  </div>
                   
                   {/* Dropdown para motivo de desocupación */}
                   <div className="mt-4">
@@ -426,12 +360,11 @@ export default function OutForm() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* Layout mobile vs desktop para Persona Jurídica */}
-                  <div className="block sm:hidden space-y-3">
-                    {/* Mobile: Cada línea separada */}
+                  {/* Formulario unificado para Persona Jurídica */}
+                  <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] sm:w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                     </div>
                     {errors.nombrePersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -485,85 +418,6 @@ export default function OutForm() {
                       <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
                       <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900" />
                       <span className="text-gray-800 font-medium">.</span>
-                    </div>
-                  </div>
-
-                  {/* Desktop: Párrafo fluido para Persona Jurídica */}
-                  <div className="hidden sm:block">
-                    <p className="leading-relaxed text-gray-800">
-                      Por este medio, yo, 
-                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
-                      con correo electrónico 
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
-                      y cédula de identidad personal número 
-                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
-                      , actuando en mi condición de Representante Legal de la Empresa 
-                      <input {...register('nombreEmpresa')} className={`border-b mx-2 px-1 w-56 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombreEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre de la empresa" />
-                      , con RUC 
-                      <input {...register('rucEmpresa')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.rucEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de RUC" />
-                      , quien mantiene alquilado el local 
-                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
-                      , Tenant ID 
-                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
-                      en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
-                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
-                        <option value="" className="text-gray-500">Seleccione...</option>
-                        {sucursalOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                      , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
-                      .
-                    </p>
-                    
-                    {/* Mostrar errores para desktop - Persona Jurídica */}
-                    <div className="mt-2 space-y-1">
-                      {errors.nombrePersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.nombrePersona.message}
-                        </div>
-                      )}
-                      {errors.correoPersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.correoPersona.message}
-                        </div>
-                      )}
-                      {errors.cedulaPersona && (
-                        <div className="text-red-500 text-xs">
-                          {errors.cedulaPersona.message}
-                        </div>
-                      )}
-                      {errors.nombreEmpresa && (
-                        <div className="text-red-500 text-xs">
-                          {errors.nombreEmpresa.message}
-                        </div>
-                      )}
-                      {errors.rucEmpresa && (
-                        <div className="text-red-500 text-xs">
-                          {errors.rucEmpresa.message}
-                        </div>
-                      )}
-                      {errors.numeroLocal && (
-                        <div className="text-red-500 text-xs">
-                          {errors.numeroLocal.message}
-                        </div>
-                      )}
-                      {errors.tenantId && (
-                        <div className="text-red-500 text-xs">
-                          {errors.tenantId.message}
-                        </div>
-                      )}
-                      {errors.sucursal && (
-                        <div className="text-red-500 text-xs">
-                          {errors.sucursal.message}
-                        </div>
-                      )}
-                      {errors.fechaDesocupacion && (
-                        <div className="text-red-500 text-xs">
-                          {errors.fechaDesocupacion.message}
-                        </div>
-                      )}
                     </div>
                   </div>
                   

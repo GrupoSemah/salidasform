@@ -146,6 +146,11 @@ export default function OutForm() {
       
       await Promise.race([emailPromise, timeoutPromise]);
 
+      // Limpiar formulario solo después de envío exitoso
+      reset();
+      setSignature('');
+      setTipoPersona('natural');
+      
       // Validación de redirect seguro
       const allowedUrls = ['/thanks'];
       const targetUrl = '/thanks';
@@ -156,10 +161,11 @@ export default function OutForm() {
       console.error('Email Send Error:', error);
       logSecureError(error, 'EMAIL_SEND');
       
-      // Mostrar error en la UI en lugar de redirigir
+      // Mostrar error en la UI sin limpiar los campos
       const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
       setErrorMessage(`Error al enviar: ${errorMsg}`);
       
+      // NO limpiar el formulario cuando hay error - mantener los valores
       // Solo redirigir después de 5 segundos para permitir ver el error
       setTimeout(() => {
         const errorUrl = '/resendmessage';
@@ -171,7 +177,7 @@ export default function OutForm() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [lastSubmitTime, signature]);
+  }, [lastSubmitTime, signature, reset]);
 
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);
@@ -255,7 +261,7 @@ export default function OutForm() {
                     {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                     </div>
                     {errors.nombrePersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -264,7 +270,7 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">con correo electrónico</span>
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
+                      <input {...register('correoPersona')} type="email" className={`border-b mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
                     </div>
                     {errors.correoPersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -273,7 +279,7 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">y cédula de identidad personal número</span>
-                      <input {...register('cedulaPersona')} className={`border-b mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className={`border-b mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
                     </div>
                     {errors.cedulaPersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -282,7 +288,7 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, quien mantiene alquilado el local</span>
-                      <input {...register('numeroLocal')} className={`border-b mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
+                      <input {...register('numeroLocal')} className={`border-b mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
                     </div>
                     {errors.numeroLocal && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -291,11 +297,11 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, Tenant ID</span>
-                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="Tenant ID" />
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500" placeholder="Tenant ID" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500">
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500">
                         <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
@@ -304,7 +310,7 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-800" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900" />
                       <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
@@ -313,24 +319,24 @@ export default function OutForm() {
                   <div className="hidden sm:block">
                     <p className="leading-relaxed text-gray-800">
                       Por este medio, yo, 
-                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                       con correo electrónico 
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
+                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
                       y cédula de identidad personal número 
-                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
                       , quien mantiene alquilado el local 
-                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
+                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
                       , Tenant ID 
-                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
+                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
                       en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
-                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
+                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
                         <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block text-gray-800 ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
+                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
                       .
                     </p>
                     
@@ -392,7 +398,7 @@ export default function OutForm() {
                     {/* Mobile: Cada línea separada */}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">Por este medio, yo,</span>
-                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-1 px-1 min-w-[120px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                     </div>
                     {errors.nombrePersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -401,7 +407,7 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">con correo electrónico</span>
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
+                      <input {...register('correoPersona')} type="email" className={`border-b mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
                     </div>
                     {errors.correoPersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -410,7 +416,7 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">y cédula de identidad personal número</span>
-                      <input {...register('cedulaPersona')} className={`border-b mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className={`border-b mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
                     </div>
                     {errors.cedulaPersona && (
                       <div className="text-red-500 text-xs mt-1 ml-1">
@@ -419,23 +425,23 @@ export default function OutForm() {
                     )}
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, actuando en mi condición de Representante Legal de la Empresa</span>
-                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="nombre de la empresa" />
+                      <input {...register('nombreEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[150px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500" placeholder="nombre de la empresa" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, con RUC</span>
-                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="número de RUC" />
+                      <input {...register('rucEmpresa')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500" placeholder="número de RUC" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, quien mantiene alquilado el local</span>
-                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="número" />
+                      <input {...register('numeroLocal')} className="border-b border-orange-400 mx-1 px-1 min-w-[60px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500" placeholder="número" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, Tenant ID</span>
-                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500" placeholder="Tenant ID" />
+                      <input {...register('tenantId')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500" placeholder="Tenant ID" />
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal</span>
-                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent placeholder:text-gray-500">
+                      <select {...register('sucursal')} className="border-b border-orange-400 mx-1 px-1 min-w-[100px] focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 placeholder:text-gray-500">
                         <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
@@ -444,7 +450,7 @@ export default function OutForm() {
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
                       <span className="text-gray-800 font-medium">, comunico que estaremos desocupando dicho local aproximadamente el día</span>
-                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-800" />
+                      <input {...register('fechaDesocupacion')} type="date" className="border-b border-orange-400 mx-1 px-1 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900" />
                       <span className="text-gray-800 font-medium">.</span>
                     </div>
                   </div>
@@ -453,28 +459,28 @@ export default function OutForm() {
                   <div className="hidden sm:block">
                     <p className="leading-relaxed text-gray-800">
                       Por este medio, yo, 
-                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
+                      <input {...register('nombrePersona')} className={`border-b mx-2 px-1 w-48 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombrePersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre completo" />
                       con correo electrónico 
-                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
+                      <input {...register('correoPersona')} type="email" className={`border-b mx-2 px-1 w-44 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.correoPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="correo@ejemplo.com" />
                       y cédula de identidad personal número 
-                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
+                      <input {...register('cedulaPersona')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.cedulaPersona ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de cédula" />
                       , actuando en mi condición de Representante Legal de la Empresa 
-                      <input {...register('nombreEmpresa')} className={`border-b mx-2 px-1 w-56 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.nombreEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre de la empresa" />
+                      <input {...register('nombreEmpresa')} className={`border-b mx-2 px-1 w-56 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.nombreEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="nombre de la empresa" />
                       , con RUC 
-                      <input {...register('rucEmpresa')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.rucEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de RUC" />
+                      <input {...register('rucEmpresa')} className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.rucEmpresa ? 'border-red-500' : 'border-orange-400'}`} placeholder="número de RUC" />
                       , quien mantiene alquilado el local 
-                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
+                      <input {...register('numeroLocal')} className={`border-b mx-2 px-1 w-20 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.numeroLocal ? 'border-red-500' : 'border-orange-400'}`} placeholder="número" />
                       , Tenant ID 
-                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
+                      <input {...register('tenantId')} className={`border-b mx-2 px-1 w-32 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block placeholder:text-gray-500 ${errors.tenantId ? 'border-red-500' : 'border-orange-400'}`} placeholder="Tenant ID" />
                       en <strong className="text-orange-600">Almacenajes Minidepósitos</strong>, sucursal 
-                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
+                      <select {...register('sucursal')} className={`border-b mx-2 px-1 w-40 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.sucursal ? 'border-red-500' : 'border-orange-400'}`}>
                         <option value="" className="text-gray-500">Seleccione...</option>
                         {sucursalOptions.map(option => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select>
                       , comunico que estaremos desocupando dicho local aproximadamente el día 
-                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent inline-block text-gray-800 ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
+                      <input {...register('fechaDesocupacion')} type="date" className={`border-b mx-2 px-1 w-36 focus:border-orange-600 focus:outline-none bg-transparent text-gray-900 inline-block ${errors.fechaDesocupacion ? 'border-red-500' : 'border-orange-400'}`} />
                       .
                     </p>
                     
@@ -545,7 +551,7 @@ export default function OutForm() {
             {/* Dropdown para destino de bienes */}
             <div className="mb-8">
               <label className="block mb-2 font-medium text-gray-700 text-sm">Mis bienes serán destinados de la siguiente manera:</label>
-              <select {...register('destinoBienes')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500">
+              <select {...register('destinoBienes')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
                 <option value="" className="text-gray-500">Seleccione el destino...</option>
                 {DESTINO_BIENES.map(destino => (
                   <option key={destino} value={destino}>{destino}</option>
@@ -570,13 +576,13 @@ export default function OutForm() {
                   <label className="block mb-2 font-medium text-gray-700 text-sm">
                     Nombre de la Cuenta: <span className="text-gray-500 font-normal">(opcional)</span>
                   </label>
-                  <input {...register('nombreCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre completo del titular" />
+                  <input {...register('nombreCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500" placeholder="Nombre completo del titular" />
                 </div>
                 <div>
                   <label className="block mb-2 font-medium text-gray-700 text-sm">
                     Banco: <span className="text-gray-500 font-normal">(opcional)</span>
                   </label>
-                  <input {...register('banco')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre del banco" />
+                  <input {...register('banco')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500" placeholder="Nombre del banco" />
                 </div>
                 <div>
                   <label className="block mb-2 font-medium text-gray-700 text-sm">
@@ -597,7 +603,7 @@ export default function OutForm() {
                   <label className="block mb-2 font-medium text-gray-700 text-sm">
                     No. De Cuenta: <span className="text-gray-500 font-normal">(opcional)</span>
                   </label>
-                  <input {...register('numeroCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base placeholder:text-gray-500" placeholder="Número de cuenta" />
+                  <input {...register('numeroCuenta')} className="border border-gray-300 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500" placeholder="Número de cuenta" />
                 </div>
               </div>
             </div>
@@ -611,7 +617,7 @@ export default function OutForm() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               <div>
                 <label className="block mb-2 font-medium text-gray-700 text-sm">Nombre:</label>
-                <input {...register('nombreFirma')} className="border-b border-orange-400 w-full p-2 focus:border-orange-600 focus:outline-none bg-transparent text-sm sm:text-base placeholder:text-gray-500" placeholder="Nombre completo" />
+                <input {...register('nombreFirma')} className="border-b border-orange-400 w-full p-2 focus:border-orange-600 focus:outline-none bg-transparent text-sm sm:text-base text-gray-900 placeholder:text-gray-500" placeholder="Nombre completo" />
               </div>
               <div>
                 <label className="block mb-2 font-medium text-gray-700 text-sm">Firma:</label>

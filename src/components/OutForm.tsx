@@ -351,9 +351,9 @@ export default function OutForm() {
                   
                   {/* Dropdown para motivo de desocupación */}
                   <div className="mt-4">
-                    <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
+                    <label className="block mb-2 font-medium text-gray-700 text-sm">¿Qué le motivó a considerar desocupar su depósito?</label>
                     <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
-                      <option value="" className="text-gray-500">Seleccione el motivo...</option>
+                      <option value="" className="text-gray-500">Seleccione una opción...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>
                       ))}
@@ -425,9 +425,9 @@ export default function OutForm() {
                   
                   {/* Dropdown para motivo de desocupación */}
                   <div className="mt-4">
-                    <label className="block mb-2 font-medium text-gray-700 text-sm">El motivo por el cual desocupo el local es:</label>
+                    <label className="block mb-2 font-medium text-gray-700 text-sm">¿Qué le motivó a considerar desocupar su depósito?</label>
                     <select {...register('motivoDesocupacion')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
-                      <option value="" className="text-gray-500">Seleccione el motivo...</option>
+                      <option value="" className="text-gray-500">Seleccione una opción...</option>
                       {MOTIVOS_DESOCUPACION.map(motivo => (
                         <option key={motivo} value={motivo}>{motivo}</option>
                       ))}

@@ -74,20 +74,24 @@ export const BANCOS_PANAMA = [
 ];
 
 export const MOTIVOS_DESOCUPACION = [
-  'Recibí nueva casa u oficina',
-  'Quiero eliminar el gasto de arrendamiento',
-  'Pertenencias eliminadas (por venta, donación o descarte)',
   'Pocas pertenencias para llenar el depósito',
-  'Me cambié a otra sucursal',
-  'Alquilé en otro Storage',
-  'Disminución o cierre de actividad comercial',
-  'Saldré del país indefinidamente',
+  'Quería reducir gastos',
+  'Recibí mi vivienda o local propio',
+  'Dificultades con el servicio',
 ];
 
 export const DESTINO_BIENES = [
-  'Pertenencias eliminadas (por venta, donación o descarte)',
-  'Darle uso en un lugar propio',
-  'Guardarlos en un lugar propio',
-  'Guardarlos en otra sucursal',
-  'Guardarlos en otro Storage',
+  'Las trasladé a mi vivienda, oficina o local propio',
+  'Las moví a otro self storage',
+  'Las vendí, regalé doné o las eliminé',
+];
+
+export const CONSIDERACION_CAMBIO = [
+  'Sí, lo consideré',
+  'No, no lo consideré',
+];
+
+export const CALIFICACION_EXPERIENCIA = [
+  'Satisfecho',
+  'Insatisfecho',
 ];

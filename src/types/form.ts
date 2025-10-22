@@ -20,6 +20,8 @@ export const outFormSchema = z.object({
   fechaDesocupacion: z.string().min(1, 'Debe ingresar la fecha de desocupación'),
   motivoDesocupacion: z.string().min(1, 'Debe seleccionar el motivo de desocupación'),
   destinoBienes: z.string().min(1, 'Debe seleccionar el destino de los bienes'),
+  consideracionCambio: z.string().min(1, 'Debe seleccionar si consideró cambiar de unidad'),
+  calificacionExperiencia: z.string().min(1, 'Debe calificar su experiencia'),
   
   // Campos adicionales para Persona Jurídica
   nombreEmpresa: z.string().optional(),
@@ -93,6 +95,8 @@ export interface EmailTemplateParams {
   fecha_desocupacion: string;
   motivo_desocupacion: string;
   destino_bienes: string;
+  consideracion_cambio: string;
+  calificacion_experiencia: string;
   nombre_empresa: string;
   ruc_empresa: string;
   nombre_cuenta: string;

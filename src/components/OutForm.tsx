@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
-import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES } from '@/constants';
+import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA } from '@/constants';
 import { User, Building2, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
@@ -141,6 +141,8 @@ export default function OutForm() {
         fecha_desocupacion: sanitizeInput(data.fechaDesocupacion),
         motivo_desocupacion: sanitizeInput(data.motivoDesocupacion),
         destino_bienes: sanitizeInput(data.destinoBienes),
+        consideracion_cambio: sanitizeInput(data.consideracionCambio),
+        calificacion_experiencia: sanitizeInput(data.calificacionExperiencia),
         nombre_empresa: sanitizeInput(data.nombreEmpresa) || 'N/A',
         ruc_empresa: sanitizeInput(data.rucEmpresa) || 'N/A',
         nombre_cuenta: sanitizeInput(data.nombreCuenta) || 'No especificado',
@@ -437,13 +439,44 @@ export default function OutForm() {
 
             {/* Dropdown para destino de bienes */}
             <div className="mb-8">
-              <label className="block mb-2 font-medium text-gray-700 text-sm">Mis bienes serán destinados de la siguiente manera:</label>
+              <label className="block mb-2 font-medium text-gray-700 text-sm">¿Qué hizo con las pertenencias que tenía en el depósito?</label>
               <select {...register('destinoBienes')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
-                <option value="" className="text-gray-500">Seleccione el destino...</option>
+                <option value="" className="text-gray-500">Seleccione una opción...</option>
                 {DESTINO_BIENES.map(destino => (
                   <option key={destino} value={destino}>{destino}</option>
                 ))}
               </select>
+              {errors.destinoBienes && (
+                <p className="text-red-500 text-xs mt-1">{errors.destinoBienes.message}</p>
+              )}
+            </div>
+
+            {/* Dropdown para consideración de cambio */}
+            <div className="mb-8">
+              <label className="block mb-2 font-medium text-gray-700 text-sm">Antes de desocupar, ¿consideró reducir el tamaño del depósito o cambiar de unidad?</label>
+              <select {...register('consideracionCambio')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
+                <option value="" className="text-gray-500">Seleccione una opción...</option>
+                {CONSIDERACION_CAMBIO.map(opcion => (
+                  <option key={opcion} value={opcion}>{opcion}</option>
+                ))}
+              </select>
+              {errors.consideracionCambio && (
+                <p className="text-red-500 text-xs mt-1">{errors.consideracionCambio.message}</p>
+              )}
+            </div>
+
+            {/* Dropdown para calificación de experiencia */}
+            <div className="mb-8">
+              <label className="block mb-2 font-medium text-gray-700 text-sm">En general, ¿cómo calificaría su experiencia con nosotros?</label>
+              <select {...register('calificacionExperiencia')} className="border border-orange-400 w-full p-2 sm:p-3 rounded-md focus:border-orange-600 focus:outline-none text-sm sm:text-base text-gray-900 placeholder:text-gray-500">
+                <option value="" className="text-gray-500">Seleccione una opción...</option>
+                {CALIFICACION_EXPERIENCIA.map(calificacion => (
+                  <option key={calificacion} value={calificacion}>{calificacion}</option>
+                ))}
+              </select>
+              {errors.calificacionExperiencia && (
+                <p className="text-red-500 text-xs mt-1">{errors.calificacionExperiencia.message}</p>
+              )}
             </div>
 
             {/* Autorización de devolución */}

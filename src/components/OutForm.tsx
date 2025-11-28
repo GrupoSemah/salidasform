@@ -10,6 +10,7 @@ import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
+import { sendToCRMTracker } from '@/lib/api';
 
 export default function OutForm() {
   const [tipoPersona, setTipoPersona] = useState<'natural' | 'juridica'>('natural');
@@ -169,11 +170,20 @@ export default function OutForm() {
       
       await Promise.race([emailPromise, timeoutPromise]);
 
-      // Email enviado exitosamente - redirigir inmediatamente
+      // Email enviado exitosamente
+      console.log('Email enviado exitosamente');
+      
+      // Enviar datos al CRM Tracker (en paralelo, no bloquea)
+      sendToCRMTracker(data).catch(err => {
+        console.warn('CRM Tracker no disponible:', err);
+        // No interrumpir el flujo si falla el CRM
+      });
+      
+      // Redirigir inmediatamente
       // NO limpiar el formulario aquí para evitar que el usuario vea campos vacíos
       // La limpieza se hará en la página /thanks si el usuario regresa
       
-      console.log('Email enviado exitosamente, redirigiendo...');
+      console.log('Redirigiendo...');
       
       // Validación de redirect seguro
       const allowedUrls = ['/thanks'];

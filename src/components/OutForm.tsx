@@ -174,8 +174,13 @@ export default function OutForm() {
       console.log('Email enviado exitosamente');
       
       // Enviar datos al CRM Tracker (en paralelo, no bloquea)
+      console.log('🔄 Enviando datos al CRM Tracker...');
       sendToCRMTracker(data).catch(err => {
-        console.warn('CRM Tracker no disponible:', err);
+        console.error('❌ Error al enviar al CRM Tracker:', err);
+        console.error('Error details:', {
+          message: err instanceof Error ? err.message : String(err),
+          type: err instanceof Error ? err.constructor.name : typeof err
+        });
         // No interrumpir el flujo si falla el CRM
       });
       

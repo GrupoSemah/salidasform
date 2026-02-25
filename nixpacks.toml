@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "npm-9_x"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 cmds = ["npm ci"]
@@ -8,4 +8,4 @@ cmds = ["npm ci"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "adduser --disabled-password --gecos '' --uid 1001 appuser 2>/dev/null; chown -R 1001:1001 /app/.next 2>/dev/null; exec su appuser -s /bin/sh -c 'npm start'""
+cmd = "adduser --disabled-password --gecos '' --uid 1001 appuser 2>/dev/null; exec su appuser -s /bin/sh -c 'npx serve dist -l ${PORT:-4321}'"

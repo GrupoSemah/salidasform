@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["nodejs_20", "npm-9_x"]
 
 [phases.install]
 cmds = ["npm ci"]
@@ -8,4 +8,4 @@ cmds = ["npm ci"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "echo 'appuser:x:1001:1001::/tmp:/bin/sh' >> /etc/passwd && echo 'appgroup:x:1001:' >> /etc/group && chown -R 1001:1001 /app/.next 2>/dev/null; exec su appuser -s /bin/sh -c 'npm start'"
+cmd = "npm start"

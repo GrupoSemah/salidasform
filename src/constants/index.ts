@@ -95,3 +95,18 @@ export const CALIFICACION_EXPERIENCIA = [
   'Satisfecho',
   'Insatisfecho',
 ];
+
+// Mapeo de Location IDs del backend a IDs de sucursal del frontend
+export const LOCATION_TO_SUCURSAL: Record<string, string> = {
+  'L001': 'milla-8',
+  'L002': 'vista-hermosa',
+  'L003': 'rio-abajo',
+  'L004': 'san-antonio',
+  'L005': 'costa-del-este',
+  'L006': 'gorgona',
+  'L007': 'albrook',
+  'L008': 'colon',
+  'L009': 'david',
+  'L010': 'hato-montana',
+  'L011': 'tumba-muerto',
+};

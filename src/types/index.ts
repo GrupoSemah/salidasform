@@ -9,3 +9,6 @@ export * from './business';
 
 // Types de componentes UI
 export * from './components';
+
+// Types del sistema de tenants y lookup
+export * from './tenant';

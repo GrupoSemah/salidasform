@@ -1,5 +1,5 @@
-import OutForm from '@/components/OutForm';
+import SalidaFlow from '@/components/SalidaFlow';
 
 export default function Home() {
-  return <OutForm />;
+  return <SalidaFlow />;
 }

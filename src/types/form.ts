@@ -35,7 +35,8 @@ export const outFormSchema = z.object({
   
   // Firma
   nombreFirma: z.string().min(1, 'Debe ingresar el nombre para la firma'),
-  firmaDigital: z.string().optional(),
+  telefonoFirma: z.string().min(1, 'Debe ingresar su teléfono'),
+  firmaDigital: z.string().min(1, 'Debe agregar su firma digital'),
 }).superRefine((data, ctx) => {
   // Validar campos según tipo de persona
   if (!data.nombrePersona || data.nombrePersona.trim() === '') {

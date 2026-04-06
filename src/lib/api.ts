@@ -1,7 +1,25 @@
 // API client para enviar datos al CRM Tracker
-import type { OutFormData } from '@/types';
+import type { OutFormData, TenantLookupResponse, TenantUnitsResponse } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_CRM_API_URL || 'http://localhost:4000/api/v1';
+
+// Busca un tenant por su ID en el backend
+export const lookupTenant = async (tenantId: string): Promise<TenantLookupResponse> => {
+  const response = await fetch(`${API_URL}/tenants/lookup/${tenantId}`);
+  const data = await response.json() as TenantLookupResponse;
+  return data;
+};
+
+// Obtiene las unidades activas de un tenant junto con su resumen financiero
+export const getTenantUnits = async (tenantId: string): Promise<TenantUnitsResponse> => {
+  const response = await fetch(`${API_URL}/tenants/${tenantId}/units`);
+  if (!response.ok) {
+    const errorData = await response.json() as { message?: string };
+    throw new Error(errorData.message || `Error ${response.status}`);
+  }
+  const data = await response.json() as TenantUnitsResponse;
+  return data;
+};
 
 export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
   try {

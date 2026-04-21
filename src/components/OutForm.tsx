@@ -12,6 +12,7 @@ import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
 import { sendToCRMTracker } from '@/lib/api';
+import { saveLog, updateLog } from '@/lib/form-logs';
 
 interface OutFormProps {
   prefilledData?: PrefilledFormData;
@@ -101,62 +102,90 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
   };
 
   const onSubmit = useCallback(async (data: OutFormData) => {
-    console.log('=== INICIO onSubmit ===');
-    console.log('Device:', /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'MOBILE' : 'DESKTOP');
-    
-    // Limpiar mensaje de error previo
     setErrorMessage('');
-    
-    // Rate limiting check
+
     const now = Date.now();
     if (now - lastSubmitTime < RATE_LIMIT_MS) {
-      logSecureError(new Error('Rate limit exceeded'), 'RATE_LIMIT');
       setErrorMessage('Por favor, espere unos segundos antes de enviar nuevamente.');
       return;
     }
-    
-    // Debug: ver los datos que se están enviando
-    console.log('Datos del formulario:', data);
-    
-    // Validar variables de entorno
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 
-        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 
+
+    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
+        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ||
         !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-      console.error('Error: Variables de entorno de EmailJS no configuradas');
       setErrorMessage('Error de configuración del sistema. Por favor, contacte al administrador.');
       return;
     }
-    
+
     setIsSubmitting(true);
     setLastSubmitTime(now);
-    
+
+    const logId = crypto.randomUUID();
+    saveLog({
+      id: logId,
+      timestamp: new Date().toISOString(),
+      formType: 'salida',
+      payload: {
+        tenantId: data.tenantId,
+        nombrePersona: data.nombrePersona,
+        correoPersona: data.correoPersona,
+        cedulaPersona: data.cedulaPersona,
+        sucursal: data.sucursal,
+        numeroLocal: data.numeroLocal,
+        tipoPersona: data.tipoPersona,
+        fechaDesocupacion: data.fechaDesocupacion,
+        motivoDesocupacion: data.motivoDesocupacion,
+        destinoBienes: data.destinoBienes,
+        consideracionCambio: data.consideracionCambio,
+        calificacionExperiencia: data.calificacionExperiencia,
+        recomendacion: data.recomendacion,
+        nombreEmpresa: data.nombreEmpresa,
+        rucEmpresa: data.rucEmpresa,
+        nombreCuenta: data.nombreCuenta,
+        banco: data.banco,
+        tipoCuenta: data.tipoCuenta,
+        numeroCuenta: data.numeroCuenta,
+        nombreFirma: data.nombreFirma,
+        telefonoFirma: data.telefonoFirma,
+        fechaDocumento: data.fechaDocumento,
+        mesDocumento: data.mesDocumento,
+        anoDocumento: data.anoDocumento,
+      },
+      backendStatus: 'pending',
+      emailjsStatus: 'pending',
+      failedStep: null,
+      retryCount: 0,
+    });
+
+    let backendOk = false;
+    let emailjsOk = false;
+
+    // 1. Backend primero
+    try {
+      await sendToCRMTracker(data);
+      updateLog(logId, { backendStatus: 'success' });
+      backendOk = true;
+    } catch (crmErr) {
+      const errMsg = crmErr instanceof Error ? crmErr.message : 'Error desconocido';
+      updateLog(logId, { backendStatus: 'failed', failedStep: 'backend', errorMessage: errMsg });
+      logSecureError(crmErr, 'CRM_TRACKER');
+    }
+
+    // 2. EmailJS siempre (independiente del resultado del backend)
     try {
       const sucursal = SUCURSALES.find(s => s.id === data.sucursal);
       const emailsDestino = sucursal?.emails || ['info@almacenajes.net'];
 
-      // Incluir la firma directamente como imagen inline en el email
       let firmaDigitalParam = '';
-      
       if (signature && signature !== '') {
-        try {
-          // Verificar que la firma no sea demasiado grande (aprox 30KB max)
-          const sizeInBytes = (signature.length * 3) / 4;
-          if (sizeInBytes > 30000) {
-            console.warn('Signature too large, sending text confirmation only');
-            firmaDigitalParam = 'Firma digital incluida en el formulario original';
-          } else {
-            // Incluir la imagen completa con data URI para mostrar inline
-            firmaDigitalParam = signature;
-          }
-        } catch (sigError) {
-          console.error('Signature processing error:', sigError);
-          firmaDigitalParam = 'Firma digital incluida en el formulario original';
-        }
+        const sizeInBytes = (signature.length * 3) / 4;
+        firmaDigitalParam = sizeInBytes > 30000
+          ? 'Firma digital incluida en el formulario original'
+          : signature;
       } else {
         firmaDigitalParam = 'No se incluyó firma digital';
       }
 
-      // Sanitizar todos los inputs antes del envío
       const templateParams = {
         emails: emailsDestino.join(','),
         sucursal_nombre: sucursal?.nombre || 'No especificada',
@@ -182,58 +211,39 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
         nombre_firma: sanitizeInput(data.nombreFirma),
         telefono_firma: sanitizeInput(data.telefonoFirma),
         fecha_envio: new Date().toLocaleString('es-PA'),
-        // Incluir firma directamente en el template como imagen inline
         firma_digital: firmaDigitalParam,
       };
 
-      // Timeout para EmailJS (15 segundos debido al attachment)
       const emailPromise = emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         templateParams,
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Email timeout')), 15000)
-      );
-      
-      await Promise.race([emailPromise, timeoutPromise]);
+      await Promise.race([
+        emailPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 15000)),
+      ]);
+      updateLog(logId, { emailjsStatus: 'success' });
+      emailjsOk = true;
+    } catch (emailErr) {
+      const errMsg = emailErr instanceof Error ? emailErr.message : 'Error desconocido';
+      updateLog(logId, {
+        emailjsStatus: 'failed',
+        failedStep: backendOk ? 'emailjs' : 'both',
+        errorMessage: errMsg,
+      });
+      logSecureError(emailErr, 'EMAIL_SEND');
+    }
 
-      // Email enviado exitosamente
-      console.log('Email enviado exitosamente');
+    setIsSubmitting(false);
 
-      // Registrar en CRM Tracker — awaited para detectar fallos
-      try {
-        await sendToCRMTracker(data);
-        sessionStorage.removeItem('crmWarning');
-      } catch (crmErr) {
-        // El email ya llegó — no bloqueamos al usuario, pero dejamos aviso
-        console.error('❌ Error al registrar en CRM Tracker:', crmErr);
-        sessionStorage.setItem('crmWarning', 'true');
-      }
-
-      console.log('Redirigiendo...');
-      const allowedUrls = ['/thanks'];
-      const targetUrl = '/thanks';
-      if (allowedUrls.includes(targetUrl)) {
-        window.location.href = targetUrl;
-      }
-    } catch (error) {
-      console.error('Email Send Error:', error);
-      console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
-      console.error('Error message:', error instanceof Error ? error.message : String(error));
-      logSecureError(error, 'EMAIL_SEND');
-      
-      // Mostrar error en la UI sin limpiar los campos
-      const errorMsg = error instanceof Error ? error.message : 'Error desconocido';
-      setErrorMessage(`Error al enviar el formulario: ${errorMsg}. Por favor, intente nuevamente.`);
-      
-      // NO limpiar el formulario cuando hay error - mantener los valores
-      // NO redirigir automáticamente - dejar que el usuario vea el error y decida
-      console.log('Formulario NO enviado. Los datos se mantienen para que pueda reintentar.');
-    } finally {
-      setIsSubmitting(false);
+    if (backendOk) {
+      window.location.href = '/thanks';
+    } else if (emailjsOk) {
+      setErrorMessage('El formulario fue enviado por correo, pero no pudo registrarse en el sistema. Puede reintentarlo desde /logs.');
+    } else {
+      setErrorMessage('Error al enviar el formulario. El intento fue guardado — acceda a /logs para reintentarlo.');
     }
   }, [lastSubmitTime, signature]);
 

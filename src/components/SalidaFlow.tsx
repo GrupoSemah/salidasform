@@ -50,8 +50,13 @@ export default function SalidaFlow() {
     setPrefilledData(null);
   };
 
-  // Paso 'form': OutForm maneja su propio layout completo
-  if (step === 'form' && prefilledData) {
+  // Paso 'form': OutForm maneja su propio layout completo.
+  // Si prefilledData es null con step='form' (estado inconsistente), resetear al inicio.
+  if (step === 'form') {
+    if (!prefilledData) {
+      resetToLookup();
+      return null;
+    }
     return <OutForm prefilledData={prefilledData} />;
   }
 

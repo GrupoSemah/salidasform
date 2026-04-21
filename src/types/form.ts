@@ -22,7 +22,8 @@ export const outFormSchema = z.object({
   destinoBienes: z.string().min(1, 'Debe seleccionar el destino de los bienes'),
   consideracionCambio: z.string().min(1, 'Debe seleccionar si consideró cambiar de unidad'),
   calificacionExperiencia: z.string().min(1, 'Debe calificar su experiencia'),
-  
+  recomendacion: z.string().min(1, 'Debe seleccionar una opción'),
+
   // Campos adicionales para Persona Jurídica
   nombreEmpresa: z.string().optional(),
   rucEmpresa: z.string().optional(),
@@ -98,6 +99,7 @@ export interface EmailTemplateParams {
   destino_bienes: string;
   consideracion_cambio: string;
   calificacion_experiencia: string;
+  recomendacion: string;
   nombre_empresa: string;
   ruc_empresa: string;
   nombre_cuenta: string;

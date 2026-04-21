@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
 import type { PrefilledFormData } from '@/types/tenant';
-import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA } from '@/constants';
+import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA, RECOMENDACION } from '@/constants';
 import { User, Building2, Send, Info } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
@@ -172,6 +172,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
         destino_bienes: sanitizeInput(data.destinoBienes),
         consideracion_cambio: sanitizeInput(data.consideracionCambio),
         calificacion_experiencia: sanitizeInput(data.calificacionExperiencia),
+        recomendacion: sanitizeInput(data.recomendacion),
         nombre_empresa: sanitizeInput(data.nombreEmpresa) || 'N/A',
         ruc_empresa: sanitizeInput(data.rucEmpresa) || 'N/A',
         nombre_cuenta: sanitizeInput(data.nombreCuenta) || 'No especificado',
@@ -201,25 +202,18 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
 
       // Email enviado exitosamente
       console.log('Email enviado exitosamente');
-      
-      // Enviar datos al CRM Tracker (en paralelo, no bloquea)
-      console.log('🔄 Enviando datos al CRM Tracker...');
-      sendToCRMTracker(data).catch(err => {
-        console.error('❌ Error al enviar al CRM Tracker:', err);
-        console.error('Error details:', {
-          message: err instanceof Error ? err.message : String(err),
-          type: err instanceof Error ? err.constructor.name : typeof err
-        });
-        // No interrumpir el flujo si falla el CRM
-      });
-      
-      // Redirigir inmediatamente
-      // NO limpiar el formulario aquí para evitar que el usuario vea campos vacíos
-      // La limpieza se hará en la página /thanks si el usuario regresa
-      
+
+      // Registrar en CRM Tracker — awaited para detectar fallos
+      try {
+        await sendToCRMTracker(data);
+        sessionStorage.removeItem('crmWarning');
+      } catch (crmErr) {
+        // El email ya llegó — no bloqueamos al usuario, pero dejamos aviso
+        console.error('❌ Error al registrar en CRM Tracker:', crmErr);
+        sessionStorage.setItem('crmWarning', 'true');
+      }
+
       console.log('Redirigiendo...');
-      
-      // Validación de redirect seguro
       const allowedUrls = ['/thanks'];
       const targetUrl = '/thanks';
       if (allowedUrls.includes(targetUrl)) {
@@ -501,6 +495,20 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                   </select>
                   {errors.calificacionExperiencia && (
                     <p className="text-red-500 text-xs mt-1 flex items-center gap-1">&#9888; {errors.calificacionExperiencia.message}</p>
+                  )}
+                </div>
+
+                {/* Recomendacion */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">Si alguien cercano a usted necesitara un minidepósito, ¿nos recomendaría?</label>
+                  <select {...register('recomendacion')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
+                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    {RECOMENDACION.map(opcion => (
+                      <option key={opcion} value={opcion}>{opcion}</option>
+                    ))}
+                  </select>
+                  {errors.recomendacion && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">&#9888; {errors.recomendacion.message}</p>
                   )}
                 </div>
               </div>

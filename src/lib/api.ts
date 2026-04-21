@@ -21,64 +21,41 @@ export const getTenantUnits = async (tenantId: string): Promise<TenantUnitsRespo
   return data;
 };
 
+// Usa la API route de Next.js para que los errores queden logueados server-side
 export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
-  try {
-    const response = await fetch(`${API_URL}/salidas`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        // Document date
-        fechaDocumento: data.fechaDocumento,
-        mesDocumento: data.mesDocumento,
-        anoDocumento: data.anoDocumento,
-        
-        // Person type
-        tipoPersona: data.tipoPersona,
-        
-        // Common fields
-        nombrePersona: data.nombrePersona,
-        correoPersona: data.correoPersona,
-        cedulaPersona: data.cedulaPersona,
-        numeroLocal: data.numeroLocal,
-        tenantId: data.tenantId,
-        sucursal: data.sucursal,
-        
-        // Exit details
-        fechaDesocupacion: data.fechaDesocupacion,
-        motivoDesocupacion: data.motivoDesocupacion,
-        destinoBienes: data.destinoBienes,
-        
-        // Nuevos campos de tracking
-        consideracionCambio: data.consideracionCambio,
-        calificacionExperiencia: data.calificacionExperiencia,
-        
-        // Persona Jurídica
-        nombreEmpresa: data.nombreEmpresa,
-        rucEmpresa: data.rucEmpresa,
-        
-        // Bank details
-        nombreCuenta: data.nombreCuenta,
-        banco: data.banco,
-        tipoCuenta: data.tipoCuenta,
-        numeroCuenta: data.numeroCuenta,
-        
-        // Signature
-        nombreFirma: data.nombreFirma,
-        firmaDigital: data.firmaDigital,
-      }),
-    });
+  const response = await fetch('/api/crm-salida', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fechaDocumento: data.fechaDocumento,
+      mesDocumento: data.mesDocumento,
+      anoDocumento: data.anoDocumento,
+      tipoPersona: data.tipoPersona,
+      nombrePersona: data.nombrePersona,
+      correoPersona: data.correoPersona,
+      cedulaPersona: data.cedulaPersona,
+      numeroLocal: data.numeroLocal,
+      tenantId: data.tenantId,
+      sucursal: data.sucursal,
+      fechaDesocupacion: data.fechaDesocupacion,
+      motivoDesocupacion: data.motivoDesocupacion,
+      destinoBienes: data.destinoBienes,
+      consideracionCambio: data.consideracionCambio,
+      calificacionExperiencia: data.calificacionExperiencia,
+      recomendacion: data.recomendacion,
+      nombreEmpresa: data.nombreEmpresa,
+      rucEmpresa: data.rucEmpresa,
+      nombreCuenta: data.nombreCuenta,
+      banco: data.banco,
+      tipoCuenta: data.tipoCuenta,
+      numeroCuenta: data.numeroCuenta,
+      nombreFirma: data.nombreFirma,
+      firmaDigital: data.firmaDigital,
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('✅ Datos enviados al CRM Tracker:', result);
-  } catch (error) {
-    console.error('❌ Error al enviar datos al CRM Tracker:', error);
-    // No lanzar error para no interrumpir el flujo del formulario
-    // El email ya se envió, esto es un backup adicional
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error(`CRM error ${response.status}: ${JSON.stringify(err)}`);
   }
 };

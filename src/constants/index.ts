@@ -92,8 +92,17 @@ export const CONSIDERACION_CAMBIO = [
 ];
 
 export const CALIFICACION_EXPERIENCIA = [
+  'Muy satisfecho',
   'Satisfecho',
   'Insatisfecho',
+  'Muy insatisfecho',
+];
+
+export const RECOMENDACION = [
+  'Definitivamente sí',
+  'Probablemente sí',
+  'Probablemente no',
+  'Definitivamente no',
 ];
 
 // Mapeo de Location IDs del backend a IDs de sucursal del frontend

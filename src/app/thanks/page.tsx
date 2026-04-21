@@ -1,11 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
-import { CheckCircle, Home } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle, Home, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
 
 export default function ThanksPage() {
+  const [crmWarning, setCrmWarning] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('crmWarning') === 'true') {
+      setCrmWarning(true);
+      sessionStorage.removeItem('crmWarning');
+    }
+  }, []);
+
   useEffect(() => {
     // Confetti inicial - explosión central
     confetti({
@@ -62,6 +71,17 @@ export default function ThanksPage() {
               <div className="absolute inset-0 w-24 h-24 bg-green-500 rounded-full opacity-20 animate-ping"></div>
             </div>
           </div>
+
+          {/* Banner de advertencia si el CRM falló */}
+          {crmWarning && (
+            <div className="mb-6 flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-left">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
+              <p className="text-sm text-yellow-800">
+                Su formulario fue enviado correctamente por email. Sin embargo, hubo un problema al registrarlo en el sistema interno.
+                Por favor contacte a su sucursal para confirmar el registro.
+              </p>
+            </div>
+          )}
 
           {/* Título principal */}
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">

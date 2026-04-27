@@ -50,6 +50,7 @@ export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
       tipoCuenta: data.tipoCuenta,
       numeroCuenta: data.numeroCuenta,
       nombreFirma: data.nombreFirma,
+      telefono: data.telefonoFirma,
       firmaDigital: data.firmaDigital,
     }),
   });

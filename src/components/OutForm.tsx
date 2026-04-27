@@ -104,6 +104,22 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     });
   };
 
+  const withRetry = async (fn: () => Promise<void>, maxAttempts = 3): Promise<{ ok: boolean; attempts: number; error?: string }> => {
+    const delays = [0, 1500, 3000];
+    let lastError = '';
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      if (delays[attempt - 1] > 0) await new Promise(r => setTimeout(r, delays[attempt - 1]));
+      try {
+        await fn();
+        return { ok: true, attempts: attempt };
+      } catch (e) {
+        lastError = e instanceof Error ? e.message : 'Error desconocido';
+        console.warn(`[CRM] Reintento ${attempt}/${maxAttempts} fallido:`, lastError);
+      }
+    }
+    return { ok: false, attempts: maxAttempts, error: lastError };
+  };
+
   const onSubmit = useCallback(async (data: OutFormData) => {
     setErrorMessage('');
 
@@ -163,15 +179,14 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     let backendOk = false;
     let emailjsOk = false;
 
-    // 1. Backend primero
-    try {
-      await sendToCRMTracker(data);
-      updateLog(logId, { backendStatus: 'success' });
-      backendOk = true;
-    } catch (crmErr) {
-      const errMsg = crmErr instanceof Error ? crmErr.message : 'Error desconocido';
-      updateLog(logId, { backendStatus: 'failed', failedStep: 'backend', errorMessage: errMsg });
-      logSecureError(crmErr, 'CRM_TRACKER');
+    // 1. Backend primero (con retry automático)
+    const crmResult = await withRetry(() => sendToCRMTracker(data));
+    backendOk = crmResult.ok;
+    if (crmResult.ok) {
+      updateLog(logId, { backendStatus: 'success', retryCount: crmResult.attempts - 1 });
+    } else {
+      updateLog(logId, { backendStatus: 'failed', failedStep: 'backend', errorMessage: crmResult.error, retryCount: crmResult.attempts });
+      logSecureError(new Error(crmResult.error ?? 'CRM failed'), 'CRM_TRACKER');
     }
 
     // 2. EmailJS siempre (independiente del resultado del backend)

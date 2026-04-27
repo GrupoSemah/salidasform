@@ -46,7 +46,10 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
       numeroCuenta: '',
       nombreFirma: '',
       telefonoFirma: '',
-      firmaDigital: ''
+      firmaDigital: '',
+      consideracionCambio: '',
+      calificacionExperiencia: '',
+      recomendacion: '',
     }
   });
 
@@ -484,7 +487,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                 <div>
                   <label className="block mb-2 font-medium text-gray-700 text-sm">Antes de desocupar, considero reducir el tamano del deposito o cambiar de unidad?</label>
                   <select {...register('consideracionCambio')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
                     {CONSIDERACION_CAMBIO.map(opcion => (
                       <option key={opcion} value={opcion}>{opcion}</option>
                     ))}
@@ -498,7 +501,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                 <div>
                   <label className="block mb-2 font-medium text-gray-700 text-sm">En general, como calificaria su experiencia con nosotros?</label>
                   <select {...register('calificacionExperiencia')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
                     {CALIFICACION_EXPERIENCIA.map(calificacion => (
                       <option key={calificacion} value={calificacion}>{calificacion}</option>
                     ))}
@@ -512,7 +515,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                 <div>
                   <label className="block mb-2 font-medium text-gray-700 text-sm">Si alguien cercano a usted necesitara un minidepósito, ¿nos recomendaría?</label>
                   <select {...register('recomendacion')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
                     {RECOMENDACION.map(opcion => (
                       <option key={opcion} value={opcion}>{opcion}</option>
                     ))}

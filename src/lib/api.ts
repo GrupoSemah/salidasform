@@ -38,6 +38,7 @@ export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
       tenantId: data.tenantId,
       sucursal: data.sucursal,
       fechaDesocupacion: data.fechaDesocupacion,
+      momentoDecision: data.momentoDecision,
       motivoDesocupacion: data.motivoDesocupacion,
       destinoBienes: data.destinoBienes,
       consideracionCambio: data.consideracionCambio,
@@ -50,6 +51,7 @@ export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
       tipoCuenta: data.tipoCuenta,
       numeroCuenta: data.numeroCuenta,
       nombreFirma: data.nombreFirma,
+      telefono: data.telefonoFirma,
       firmaDigital: data.firmaDigital,
     }),
   });

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { outFormSchema, OutFormData } from '@/types';
 import type { PrefilledFormData } from '@/types/tenant';
-import { SUCURSALES, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA, RECOMENDACION } from '@/constants';
+import { SUCURSALES, MOMENTO_DECISION, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA, RECOMENDACION } from '@/constants';
 import { User, Building2, Send, Info } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
@@ -13,6 +13,7 @@ import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
 import { sendToCRMTracker } from '@/lib/api';
 import { saveLog, updateLog } from '@/lib/form-logs';
+import { buildEmailTemplateParams } from '@/lib/email-template';
 
 interface OutFormProps {
   prefilledData?: PrefilledFormData;
@@ -33,6 +34,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors }
   } = useForm<OutFormData>({
     resolver: zodResolver(outFormSchema),
@@ -47,6 +49,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
       nombreFirma: '',
       telefonoFirma: '',
       firmaDigital: '',
+      momentoDecision: '',
       consideracionCambio: '',
       calificacionExperiencia: '',
       recomendacion: '',
@@ -87,6 +90,34 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     const formatted = lastDay.toISOString().split('T')[0]; // "YYYY-MM-DD"
     setValue('fechaDesocupacion', formatted);
   }, [setValue]);
+
+  // Lógica dinámica P5 → P6: calificación condiciona opciones de recomendación
+  const calificacionExperiencia = watch('calificacionExperiencia');
+  const recomendacion = watch('recomendacion');
+
+  const CALIFICACION_POSITIVA = new Set(['Muy satisfecho', 'Satisfecho']);
+  const CALIFICACION_NEGATIVA = new Set(['Insatisfecho', 'Muy insatisfecho']);
+  // Calificación positiva bloquea ambas opciones negativas (simetría con el caso insatisfecho)
+  const RECOMENDACION_DESHABILITADA_POSITIVA = new Set(['Probablemente no', 'Definitivamente no']);
+  const RECOMENDACION_DESHABILITADA_NEGATIVA = new Set(['Definitivamente sí', 'Probablemente sí']);
+
+  // Calcula qué opciones de P6 quedan deshabilitadas según el valor actual de P5
+  const getDisabledRecomendaciones = (calificacion: string): Set<string> => {
+    if (CALIFICACION_POSITIVA.has(calificacion)) return RECOMENDACION_DESHABILITADA_POSITIVA;
+    if (CALIFICACION_NEGATIVA.has(calificacion)) return RECOMENDACION_DESHABILITADA_NEGATIVA;
+    return new Set();
+  };
+
+  // Limpia P6 si la opción seleccionada queda deshabilitada por un cambio en P5
+  useEffect(() => {
+    if (!calificacionExperiencia || !recomendacion) return;
+    const disabled = getDisabledRecomendaciones(calificacionExperiencia);
+    if (disabled.has(recomendacion)) {
+      setValue('recomendacion', '');
+    }
+  // Solo se dispara cuando cambia la calificación
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calificacionExperiencia]);
 
   // Función para sanitizar strings
   const sanitizeInput = (input: string | undefined): string => {
@@ -153,6 +184,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
         numeroLocal: data.numeroLocal,
         tipoPersona: data.tipoPersona,
         fechaDesocupacion: data.fechaDesocupacion,
+        momentoDecision: data.momentoDecision,
         motivoDesocupacion: data.motivoDesocupacion,
         destinoBienes: data.destinoBienes,
         consideracionCambio: data.consideracionCambio,
@@ -191,46 +223,45 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
 
     // 2. EmailJS siempre (independiente del resultado del backend)
     try {
-      const sucursal = SUCURSALES.find(s => s.id === data.sucursal);
-      const emailsDestino = sucursal?.emails || ['info@almacenajes.net'];
-
-      let firmaDigitalParam = '';
+      let firmaDigitalParam = 'No se incluyó firma digital';
       if (signature && signature !== '') {
         const sizeInBytes = (signature.length * 3) / 4;
         firmaDigitalParam = sizeInBytes > 30000
           ? 'Firma digital incluida en el formulario original'
           : signature;
-      } else {
-        firmaDigitalParam = 'No se incluyó firma digital';
       }
 
-      const templateParams = {
-        emails: emailsDestino.join(','),
-        sucursal_nombre: sucursal?.nombre || 'No especificada',
-        tipo_persona: data.tipoPersona === 'natural' ? 'Persona Natural' : 'Persona Jurídica',
-        fecha_documento: `${sanitizeInput(data.fechaDocumento)}/${sanitizeInput(data.mesDocumento)}/${sanitizeInput(data.anoDocumento)}`,
-        nombre_persona: sanitizeInput(data.nombrePersona),
-        correo_persona: sanitizeInput(data.correoPersona),
-        cedula_persona: sanitizeInput(data.cedulaPersona),
-        numero_local: sanitizeInput(data.numeroLocal),
-        tenant_id: sanitizeInput(data.tenantId),
-        fecha_desocupacion: sanitizeInput(data.fechaDesocupacion),
-        motivo_desocupacion: sanitizeInput(data.motivoDesocupacion),
-        destino_bienes: sanitizeInput(data.destinoBienes),
-        consideracion_cambio: sanitizeInput(data.consideracionCambio),
-        calificacion_experiencia: sanitizeInput(data.calificacionExperiencia),
+      // Sanitizar datos antes de construir el template
+      const sanitizedPayload = {
+        tenantId: sanitizeInput(data.tenantId),
+        nombrePersona: sanitizeInput(data.nombrePersona),
+        correoPersona: sanitizeInput(data.correoPersona),
+        cedulaPersona: sanitizeInput(data.cedulaPersona),
+        sucursal: data.sucursal,
+        numeroLocal: sanitizeInput(data.numeroLocal),
+        tipoPersona: data.tipoPersona,
+        fechaDesocupacion: sanitizeInput(data.fechaDesocupacion),
+        momentoDecision: sanitizeInput(data.momentoDecision),
+        motivoDesocupacion: sanitizeInput(data.motivoDesocupacion),
+        destinoBienes: sanitizeInput(data.destinoBienes),
+        consideracionCambio: sanitizeInput(data.consideracionCambio),
+        calificacionExperiencia: sanitizeInput(data.calificacionExperiencia),
         recomendacion: sanitizeInput(data.recomendacion),
-        nombre_empresa: sanitizeInput(data.nombreEmpresa) || 'N/A',
-        ruc_empresa: sanitizeInput(data.rucEmpresa) || 'N/A',
-        nombre_cuenta: sanitizeInput(data.nombreCuenta) || 'No especificado',
-        banco: sanitizeInput(data.banco) || 'No especificado',
-        tipo_cuenta: data.tipoCuenta ? (data.tipoCuenta === 'corriente' ? 'Corriente' : 'Ahorro') : 'No especificado',
-        numero_cuenta: sanitizeInput(data.numeroCuenta) || 'No especificado',
-        nombre_firma: sanitizeInput(data.nombreFirma),
-        telefono_firma: sanitizeInput(data.telefonoFirma),
-        fecha_envio: new Date().toLocaleString('es-PA'),
-        firma_digital: firmaDigitalParam,
+        nombreEmpresa: sanitizeInput(data.nombreEmpresa),
+        rucEmpresa: sanitizeInput(data.rucEmpresa),
+        nombreCuenta: sanitizeInput(data.nombreCuenta),
+        banco: sanitizeInput(data.banco),
+        tipoCuenta: data.tipoCuenta,
+        numeroCuenta: sanitizeInput(data.numeroCuenta),
+        nombreFirma: sanitizeInput(data.nombreFirma),
+        telefonoFirma: sanitizeInput(data.telefonoFirma),
+        fechaDocumento: sanitizeInput(data.fechaDocumento),
+        mesDocumento: sanitizeInput(data.mesDocumento),
+        anoDocumento: sanitizeInput(data.anoDocumento),
       };
+
+      // Usa la función compartida para el mapeo camelCase → snake_case
+      const templateParams = buildEmailTemplateParams(sanitizedPayload, firmaDigitalParam);
 
       const emailPromise = emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
@@ -470,11 +501,25 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
               <p className="text-xs font-semibold uppercase tracking-widest text-orange-500 mb-3">Encuesta de salida</p>
 
               <div className="space-y-4 bg-gray-50 rounded-xl p-4 sm:p-5">
-                {/* Motivo de desocupacion */}
+                {/* P1 — Momento de decisión */}
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Que le motivo a considerar desocupar su deposito?</label>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">¿Cuándo tomó la decisión de desocupar el depósito?</label>
+                  <select {...register('momentoDecision')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
+                    <option value="" className="text-gray-500">Seleccione una opción...</option>
+                    {MOMENTO_DECISION.map(opcion => (
+                      <option key={opcion} value={opcion}>{opcion}</option>
+                    ))}
+                  </select>
+                  {errors.momentoDecision && (
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">&#9888; {errors.momentoDecision.message}</p>
+                  )}
+                </div>
+
+                {/* P2 — Motivo de desocupación */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">¿Qué le motivó a considerar desocupar su depósito?</label>
                   <select {...register('motivoDesocupacion')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" className="text-gray-500">Seleccione una opción...</option>
                     {MOTIVOS_DESOCUPACION.map(motivo => (
                       <option key={motivo} value={motivo}>{motivo}</option>
                     ))}
@@ -484,11 +529,11 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                   )}
                 </div>
 
-                {/* Destino de bienes */}
+                {/* P3 — Destino de bienes */}
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Que hizo con las pertenencias que tenia en el deposito?</label>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">¿Qué hará con las pertenencias que mantiene en el depósito?</label>
                   <select {...register('destinoBienes')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" className="text-gray-500">Seleccione una opción...</option>
                     {DESTINO_BIENES.map(destino => (
                       <option key={destino} value={destino}>{destino}</option>
                     ))}
@@ -498,11 +543,11 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                   )}
                 </div>
 
-                {/* Consideracion de cambio */}
+                {/* P4 — Consideración de cambio */}
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Antes de desocupar, considero reducir el tamano del deposito o cambiar de unidad?</label>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">Cuando pensó en desocupar, ¿consideró cambiarse a una unidad más pequeña?</label>
                   <select {...register('consideracionCambio')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" disabled className="text-gray-500">Seleccione una opción...</option>
                     {CONSIDERACION_CAMBIO.map(opcion => (
                       <option key={opcion} value={opcion}>{opcion}</option>
                     ))}
@@ -512,11 +557,11 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                   )}
                 </div>
 
-                {/* Calificacion de experiencia */}
+                {/* P5 — Calificación de experiencia */}
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">En general, como calificaria su experiencia con nosotros?</label>
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">En general, ¿cómo calificaría su experiencia con nosotros?</label>
                   <select {...register('calificacionExperiencia')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
+                    <option value="" disabled className="text-gray-500">Seleccione una opción...</option>
                     {CALIFICACION_EXPERIENCIA.map(calificacion => (
                       <option key={calificacion} value={calificacion}>{calificacion}</option>
                     ))}
@@ -526,14 +571,22 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
                   )}
                 </div>
 
-                {/* Recomendacion */}
+                {/* P6 — Recomendación (con lógica condicional según P5) */}
                 <div>
-                  <label className="block mb-2 font-medium text-gray-700 text-sm">Si alguien cercano a usted necesitara un minidepósito, ¿nos recomendaría?</label>
-                  <select {...register('recomendacion')} className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none">
-                    <option value="" disabled className="text-gray-500">Seleccione una opcion...</option>
-                    {RECOMENDACION.map(opcion => (
-                      <option key={opcion} value={opcion}>{opcion}</option>
-                    ))}
+                  <label className="block mb-2 font-medium text-gray-700 text-sm">Si alguien cercano a usted necesitase un minidepósito, ¿nos recomendaría?</label>
+                  <select
+                    {...register('recomendacion')}
+                    className="border border-gray-200 w-full h-11 px-3 rounded-lg focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 text-sm text-gray-900 bg-white appearance-none"
+                  >
+                    <option value="" disabled className="text-gray-500">Seleccione una opción...</option>
+                    {RECOMENDACION.map(opcion => {
+                      const isDisabled = getDisabledRecomendaciones(calificacionExperiencia ?? '').has(opcion);
+                      return (
+                        <option key={opcion} value={opcion} disabled={isDisabled} className={isDisabled ? 'text-gray-300' : ''}>
+                          {opcion}
+                        </option>
+                      );
+                    })}
                   </select>
                   {errors.recomendacion && (
                     <p className="text-red-500 text-xs mt-1 flex items-center gap-1">&#9888; {errors.recomendacion.message}</p>

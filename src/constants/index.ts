@@ -73,22 +73,29 @@ export const BANCOS_PANAMA = [
   'Towerbank',
 ];
 
+export const MOMENTO_DECISION = [
+  'Hace más de 1 mes',
+  'Hace 2 semanas',
+  'Hace 1 semana',
+  'Entre ayer y hoy',
+];
+
 export const MOTIVOS_DESOCUPACION = [
   'Pocas pertenencias para llenar el depósito',
   'Quería reducir gastos',
-  'Recibí mi vivienda o local propio',
+  'Recibí mi vivienda, local propio o rentado',
   'Dificultades con el servicio',
 ];
 
 export const DESTINO_BIENES = [
-  'Las trasladé a mi vivienda, oficina o local propio',
-  'Las moví a otro self storage',
-  'Las vendí, regalé doné o las eliminé',
+  'Las moveré a mi vivienda, oficina o local propio',
+  'Las moveré a otro self storage',
+  'Las venderé, regalaré, donaré o las eliminaré',
 ];
 
 export const CONSIDERACION_CAMBIO = [
-  'Sí, lo consideré',
-  'No, no lo consideré',
+  'Sí lo consideré',
+  'No lo consideré',
 ];
 
 export const CALIFICACION_EXPERIENCIA = [

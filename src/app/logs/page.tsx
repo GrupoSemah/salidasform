@@ -5,6 +5,7 @@ import Link from 'next/link';
 import emailjs from '@emailjs/browser';
 import { getLogs, updateLog, removeLog, clearSuccessfulLogs } from '@/lib/form-logs';
 import type { FormLog, LogStatus } from '@/lib/form-logs';
+import { buildEmailTemplateParams } from '@/lib/email-template';
 
 const STATUS_CLASS: Record<LogStatus, string> = {
   success: 'bg-green-100 text-green-700',
@@ -65,10 +66,13 @@ export default function LogsPage() {
 
     setRetrying(`${log.id}-emailjs`);
     try {
+      // Construye templateParams con el mapeo correcto camelCase → snake_case.
+      // El spread directo de log.payload enviaba campos en camelCase que la plantilla no reconoce.
+      const templateParams = buildEmailTemplateParams(log.payload);
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-        { ...log.payload, fecha_envio: new Date().toLocaleString('es-PA') },
+        templateParams,
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
       updateLog(log.id, {

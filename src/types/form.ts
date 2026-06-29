@@ -18,6 +18,7 @@ export const outFormSchema = z.object({
   tenantId: z.string().min(1, 'Debe ingresar el Tenant ID'),
   sucursal: z.string().min(1, 'Debe seleccionar una sucursal'),
   fechaDesocupacion: z.string().min(1, 'Debe ingresar la fecha de desocupación'),
+  momentoDecision: z.string().min(1, 'Debe seleccionar cuándo tomó la decisión'),
   motivoDesocupacion: z.string().min(1, 'Debe seleccionar el motivo de desocupación'),
   destinoBienes: z.string().min(1, 'Debe seleccionar el destino de los bienes'),
   consideracionCambio: z.string().min(1, 'Debe seleccionar si consideró cambiar de unidad'),
@@ -95,6 +96,7 @@ export interface EmailTemplateParams {
   numero_local: string;
   tenant_id: string;
   fecha_desocupacion: string;
+  momento_decision: string;
   motivo_desocupacion: string;
   destino_bienes: string;
   consideracion_cambio: string;

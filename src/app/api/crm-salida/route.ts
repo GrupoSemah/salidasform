@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     console.log('[crm-salida] Registrado exitosamente', {
       bodega: body?.numeroLocal,
       sucursal: body?.sucursal,
+      momentoDecision: body?.momentoDecision,
     });
     return NextResponse.json({ success: true, data });
   } catch (err) {

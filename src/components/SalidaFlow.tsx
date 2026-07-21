@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import TenantLookupStep from '@/components/steps/TenantLookupStep';
 import WarehouseSelectionStep from '@/components/steps/WarehouseSelectionStep';
 import OutForm from '@/components/OutForm';
+import PaymentModal from '@/components/PaymentModal';
 import type { TenantUnitsResponse, PrefilledFormData } from '@/types/tenant';
+import type { PaymentReturnData } from '@/types/payment';
 
 // Pasos del flujo de salida
-type FlowStep = 'lookup' | 'pending-balance' | 'warehouse-selection' | 'form';
+type FlowStep = 'lookup' | 'pending-balance' | 'warehouse-selection' | 'form' | 'payment-return';
 
 // Formateador de moneda panameña
 const formatCurrency = (amount: number): string =>
@@ -20,6 +23,23 @@ export default function SalidaFlow() {
   const [pendingAmount, setPendingAmount] = useState<number>(0);
   // prefilledData se define ahora para estar listo cuando OutForm lo acepte
   const [prefilledData, setPrefilledData] = useState<PrefilledFormData | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentReturn, setPaymentReturn] = useState<PaymentReturnData | null>(null);
+
+  // Detecta el retorno de PonlineV2 vía query params (?status=success|failed|error&ref=...).
+  // Se lee window.location directamente (en vez de useSearchParams) para evitar el
+  // requisito de Suspense boundary de Next 15 en una ruta que de otro modo es estática.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+
+    if (status === 'success' || status === 'failed' || status === 'error') {
+      setPaymentReturn({ status, ref: params.get('ref') });
+      setStep('payment-return');
+      // Limpiar la URL para que un refresh no vuelva a disparar esta pantalla
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // Callback recibido de TenantLookupStep al encontrar el tenant
   const handleLookupSuccess = (data: TenantUnitsResponse) => {
@@ -48,7 +68,11 @@ export default function SalidaFlow() {
     setTenantData(null);
     setPendingAmount(0);
     setPrefilledData(null);
+    setPaymentReturn(null);
   };
+
+  // Unidades con saldo pendiente, base para el resumen del modal de pago y el siteCode
+  const unitsWithBalance = tenantData?.units.filter((unit) => unit.currentBalance > 0) ?? [];
 
   // Paso 'form': OutForm maneja su propio layout completo.
   // Si prefilledData es null con step='form' (estado inconsistente), resetear al inicio.
@@ -122,15 +146,14 @@ export default function SalidaFlow() {
               su cuenta se encuentre al día.
             </p>
 
-            {/* Botón pago online */}
-            <a
-              href="https://pagos.almacenajes.net"
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* Botón pago online: abre el modal de arranque de pago */}
+            <button
+              type="button"
+              onClick={() => setIsPaymentModalOpen(true)}
               className="block w-full py-3 px-6 rounded-xl font-semibold text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 transition-colors text-center mb-4"
             >
               Ir a Pago Online
-            </a>
+            </button>
 
             {/* Enlace para intentar con otro Tenant ID */}
             <button
@@ -151,7 +174,78 @@ export default function SalidaFlow() {
             onContinue={handleWarehouseContinue}
           />
         )}
+
+        {/* Pantalla de retorno: el cliente vuelve desde PonlineV2 tras intentar pagar */}
+        {step === 'payment-return' && paymentReturn && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+            {paymentReturn.status === 'success' && (
+              <>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" aria-hidden="true" />
+                  </div>
+                </div>
+                <h2 className="text-xl font-bold text-green-700 mb-3">¡Pago recibido!</h2>
+                <p className="text-gray-600 text-sm mb-2 leading-relaxed">
+                  Tu pago fue registrado exitosamente. Ya puedes continuar con tu proceso de salida.
+                </p>
+              </>
+            )}
+
+            {paymentReturn.status === 'failed' && (
+              <>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                    <XCircle className="w-8 h-8 text-red-600" aria-hidden="true" />
+                  </div>
+                </div>
+                <h2 className="text-xl font-bold text-red-700 mb-3">Pago no completado</h2>
+                <p className="text-gray-600 text-sm mb-2 leading-relaxed">
+                  El pago no pudo completarse. Puedes intentarlo nuevamente cuando gustes.
+                </p>
+              </>
+            )}
+
+            {paymentReturn.status === 'error' && (
+              <>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <AlertTriangle className="w-8 h-8 text-yellow-600" aria-hidden="true" />
+                  </div>
+                </div>
+                <h2 className="text-xl font-bold text-yellow-700 mb-3">Ocurrió un problema</h2>
+                <p className="text-gray-600 text-sm mb-2 leading-relaxed">
+                  No pudimos confirmar el estado de tu pago. Si el cargo fue realizado, no te
+                  preocupes: contacta a tu sucursal para verificarlo.
+                </p>
+              </>
+            )}
+
+            {paymentReturn.ref && (
+              <p className="text-xs text-gray-400 font-mono mb-6">Referencia: {paymentReturn.ref}</p>
+            )}
+
+            <button
+              type="button"
+              onClick={resetToLookup}
+              className="w-full py-3 px-6 rounded-xl font-semibold text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-colors"
+            >
+              Volver al inicio
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Modal de arranque de pago */}
+      {tenantData && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          tenantId={tenantData.tenant.tenantId}
+          unitsWithBalance={unitsWithBalance}
+          totalPending={pendingAmount}
+        />
+      )}
     </div>
   );
 }

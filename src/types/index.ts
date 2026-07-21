@@ -12,3 +12,6 @@ export * from './components';
 
 // Types del sistema de tenants y lookup
 export * from './tenant';
+
+// Types del flujo de pago online (PonlineV2)
+export * from './payment';

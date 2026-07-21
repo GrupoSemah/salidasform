@@ -1,5 +1,10 @@
 // API client para enviar datos al CRM Tracker
-import type { OutFormData, TenantLookupResponse, TenantUnitsResponse } from '@/types';
+import type {
+  OutFormData,
+  TenantLookupResponse,
+  TenantUnitsResponse,
+  CreatePaymentSessionResponse,
+} from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_CRM_API_URL || 'http://localhost:4000/api/v1';
 
@@ -60,4 +65,23 @@ export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
     const err = await response.json().catch(() => ({})) as Record<string, unknown>;
     throw new Error(`CRM error ${response.status}: ${JSON.stringify(err)}`);
   }
+};
+
+// Crea la sesión de pago via API route interna (firma HMAC server-side) y
+// devuelve la URL a la que se debe redirigir al cliente para pagar en PonlineV2
+export const createPaymentSession = async (
+  tenantId: string,
+  siteCode: string
+): Promise<CreatePaymentSessionResponse> => {
+  const response = await fetch('/api/create-payment-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tenantId, siteCode }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Payment session error ${response.status}`);
+  }
+
+  return response.json() as Promise<CreatePaymentSessionResponse>;
 };

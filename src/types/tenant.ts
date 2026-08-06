@@ -60,3 +60,10 @@ export interface PrefilledFormData {
   numeroLocal: string;     // Comma-separated unit numbers (e.g. 'AA40, BB20')
   selectedUnits: TenantUnit[];
 }
+
+// Entrada individual del payload enriquecido enviado al backend: vincula
+// cada bodega seleccionada con su locationId real (soporte multilocal)
+export interface CrmSalidaBodega {
+  bodega: string;
+  locationId: string;
+}

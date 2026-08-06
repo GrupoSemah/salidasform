@@ -212,7 +212,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     let emailjsOk = false;
 
     // 1. Backend primero (con retry automático)
-    const crmResult = await withRetry(() => sendToCRMTracker(data));
+    const crmResult = await withRetry(() => sendToCRMTracker(data, prefilledData?.selectedUnits));
     backendOk = crmResult.ok;
     if (crmResult.ok) {
       updateLog(logId, { backendStatus: 'success', retryCount: crmResult.attempts - 1 });
@@ -294,7 +294,7 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     } else {
       setErrorMessage('Error al enviar el formulario. El intento fue guardado — acceda a /logs para reintentarlo.');
     }
-  }, [lastSubmitTime, signature]);
+  }, [lastSubmitTime, signature, prefilledData]);
 
   const handleTipoPersonaChange = (tipo: 'natural' | 'juridica') => {
     setTipoPersona(tipo);

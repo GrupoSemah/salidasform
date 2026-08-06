@@ -4,6 +4,8 @@ import type {
   TenantLookupResponse,
   TenantUnitsResponse,
   CreatePaymentSessionResponse,
+  TenantUnit,
+  CrmSalidaBodega,
 } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_CRM_API_URL || 'http://localhost:4000/api/v1';
@@ -27,7 +29,22 @@ export const getTenantUnits = async (tenantId: string): Promise<TenantUnitsRespo
 };
 
 // Usa la API route de Next.js para que los errores queden logueados server-side
-export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
+//
+// `selectedUnits` (opcional) viene del flujo de tenant lookup y trae el
+// `locationId` real de cada bodega seleccionada. Se usa para construir el
+// campo enriquecido `bodegas`, que resuelve el bug de tenants MULTILOCAL:
+// antes solo se enviaba `numeroLocal` (comma-separated) y `sucursal` (single),
+// perdiendo a qué sucursal pertenece cada bodega individual.
+// Los campos legacy (`numeroLocal`, `sucursal`) se mantienen para retrocompatibilidad.
+export const sendToCRMTracker = async (
+  data: OutFormData,
+  selectedUnits?: TenantUnit[]
+): Promise<void> => {
+  const bodegas: CrmSalidaBodega[] = (selectedUnits ?? []).map((u) => ({
+    bodega: u.unitNumber,
+    locationId: u.locationId,
+  }));
+
   const response = await fetch('/api/crm-salida', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -42,6 +59,7 @@ export const sendToCRMTracker = async (data: OutFormData): Promise<void> => {
       numeroLocal: data.numeroLocal,
       tenantId: data.tenantId,
       sucursal: data.sucursal,
+      bodegas,
       fechaDesocupacion: data.fechaDesocupacion,
       momentoDecision: data.momentoDecision,
       motivoDesocupacion: data.motivoDesocupacion,

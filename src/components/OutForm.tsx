@@ -7,7 +7,6 @@ import { outFormSchema, OutFormData } from '@/types';
 import type { PrefilledFormData } from '@/types/tenant';
 import { SUCURSALES, MOMENTO_DECISION, MOTIVOS_DESOCUPACION, DESTINO_BIENES, CONSIDERACION_CAMBIO, CALIFICACION_EXPERIENCIA, RECOMENDACION } from '@/constants';
 import { User, Building2, Send, Info } from 'lucide-react';
-import emailjs from '@emailjs/browser';
 import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
@@ -160,13 +159,6 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
       return;
     }
 
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) {
-      setErrorMessage('Error de configuración del sistema. Por favor, contacte al administrador.');
-      return;
-    }
-
     setIsSubmitting(true);
     setLastSubmitTime(now);
 
@@ -263,16 +255,19 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
       // Usa la función compartida para el mapeo camelCase → snake_case
       const templateParams = buildEmailTemplateParams(sanitizedPayload, firmaDigitalParam);
 
-      const emailPromise = emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        templateParams,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-      );
-      await Promise.race([
+      const emailPromise = fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateParams),
+      });
+      const emailRes = await Promise.race([
         emailPromise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 15000)),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 15000)),
       ]);
+      const emailData = await emailRes.json().catch(() => ({ ok: false })) as { ok?: boolean; error?: string };
+      if (!emailRes.ok || !emailData.ok) {
+        throw new Error(emailData.error ?? `Error ${emailRes.status}`);
+      }
       updateLog(logId, { emailjsStatus: 'success' });
       emailjsOk = true;
     } catch (emailErr) {

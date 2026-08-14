@@ -32,9 +32,11 @@ export interface SalidaPayload {
   anoDocumento?: unknown;
 }
 
-/** Tipo seguro del objeto que EmailJS recibe como templateParams */
+/** Tipo seguro del objeto que se envía a la API route de correo (antes: templateParams de EmailJS) */
 export interface EmailTemplateParams extends Record<string, unknown> {
   emails: string;
+  /** ID de sucursal (no el nombre) — el servidor lo usa para resolver destinatarios reales, nunca confía en `emails` */
+  sucursal_id: string;
   sucursal_nombre: string;
   tipo_persona: string;
   fecha_documento: string;
@@ -87,6 +89,7 @@ export function buildEmailTemplateParams(
 
   return {
     emails: emailsDestino.join(','),
+    sucursal_id: sucursalId,
     sucursal_nombre: sucursal?.nombre ?? 'No especificada',
     tipo_persona: tipoPersonaRaw === 'juridica' ? 'Persona Jurídica' : 'Persona Natural',
     fecha_documento: [

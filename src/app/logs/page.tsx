@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import emailjs from '@emailjs/browser';
 import { getLogs, updateLog, removeLog, clearSuccessfulLogs } from '@/lib/form-logs';
 import type { FormLog, LogStatus } from '@/lib/form-logs';
 import { buildEmailTemplateParams } from '@/lib/email-template';
@@ -60,21 +59,24 @@ export default function LogsPage() {
   }
 
   async function retryEmailjs(log: FormLog) {
-    if (!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ||
-        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY) return;
-
     setRetrying(`${log.id}-emailjs`);
     try {
       // Construye templateParams con el mapeo correcto camelCase → snake_case.
       // El spread directo de log.payload enviaba campos en camelCase que la plantilla no reconoce.
       const templateParams = buildEmailTemplateParams(log.payload);
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-        templateParams,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-      );
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateParams),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ ok: false })) as { ok?: boolean; error?: string };
+        throw new Error(data.error ?? `Error ${res.status}`);
+      }
+      const data = await res.json().catch(() => ({ ok: false })) as { ok?: boolean; error?: string };
+      if (!data.ok) {
+        throw new Error(data.error ?? 'Error desconocido');
+      }
       updateLog(log.id, {
         emailjsStatus: 'success',
         failedStep: log.backendStatus === 'success' ? null : 'backend',

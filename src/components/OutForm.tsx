@@ -11,6 +11,7 @@ import DOMPurify from 'dompurify';
 import SignaturePad from './ui/SignaturePad';
 import SuccessMessage from './ui/SuccessMessage';
 import { sendToCRMTracker } from '@/lib/api';
+import { reportSubmission } from '@/lib/telemetry';
 import { saveLog, updateLog } from '@/lib/form-logs';
 import { buildEmailTemplateParams } from '@/lib/email-template';
 
@@ -203,6 +204,19 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     let backendOk = false;
     let emailjsOk = false;
 
+    // Telemetría vía sendBeacon: reporta el intento de submission directo al
+    // backend del tracker, independiente de si el POST normal a /api/crm-salida
+    // (proxy interno) tiene éxito o no
+    const telemetryBase = {
+      sucursalRaw: data.sucursal ?? '',
+      tenantId: data.tenantId ?? '',
+      clientName: data.nombrePersona ?? '',
+      email: data.correoPersona ?? '',
+      bodega: data.numeroLocal ?? '',
+    };
+
+    reportSubmission({ stage: 'received', status: 'ok', ...telemetryBase });
+
     // 1. Backend primero (con retry automático)
     const crmResult = await withRetry(() => sendToCRMTracker(data, prefilledData?.selectedUnits));
     backendOk = crmResult.ok;
@@ -211,6 +225,12 @@ export default function OutForm({ prefilledData }: OutFormProps = {}) {
     } else {
       updateLog(logId, { backendStatus: 'failed', failedStep: 'backend', errorMessage: crmResult.error, retryCount: crmResult.attempts });
       logSecureError(new Error(crmResult.error ?? 'CRM failed'), 'CRM_TRACKER');
+      reportSubmission({
+        stage: 'error',
+        status: 'error',
+        ...telemetryBase,
+        failureReason: crmResult.error ?? 'Error desconocido',
+      });
     }
 
     // 2. EmailJS siempre (independiente del resultado del backend)
